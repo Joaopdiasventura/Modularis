@@ -1,0 +1,35 @@
+services:
+  rabbitmq:
+    image: rabbitmq:4-management
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: user
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "rabbitmq-diagnostics -q ping && rabbitmq-diagnostics -q check_port_connectivity",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+
+  webhook-service:
+    build: .
+    environment:
+      MODULARIS_SERVICE_NAME: webhook-service
+      PORT: 8081
+      MODULARIS_RABBITMQ_URL: amqp://user:user@rabbitmq:5672/
+      MODULARIS_EVENT_EXCHANGE: modularis.events
+      MODULARIS_WEBHOOK_HEADER: x-payment-signature
+      MODULARIS_WEBHOOK_SECRET: change-this-webhook-secret-at-least-32-characters
+      MODULARIS_WEBHOOK_TOLERANCE_MS: 300000
+      MODULARIS_WEBHOOK_ROUTING_KEY: payment.callback.confirmed
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "8085:8081"

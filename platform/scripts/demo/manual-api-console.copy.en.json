@@ -1,0 +1,216 @@
+{
+  "localeCode": "en",
+  "fileName": "manual-api-tests.html",
+  "publicRoute": "/api/docs",
+  "title": "Modularis Flow Demo",
+  "routes": {
+    "accounts": {
+      "id": "accounts",
+      "endpointId": "accounts-create",
+      "domain": "gateway",
+      "formType": "account",
+      "method": "POST",
+      "path": "/api/accounts",
+      "visibility": "public",
+      "title": "Create account",
+      "description": "Starts onboarding, signs the auth cookie, and returns the first payment intent.",
+      "scenarios": [
+        { "id": "account-create", "action": "account-create", "tone": "primary", "label": "Create account" },
+        { "id": "account-replay", "action": "account-replay", "tone": "secondary", "label": "Replay" },
+        { "id": "account-conflict-prime", "action": "account-conflict-prime", "tone": "secondary", "label": "Prime key" },
+        { "id": "account-conflict-replay", "action": "account-conflict-replay", "tone": "danger", "label": "Replay conflict" },
+        { "id": "account-missing-key", "action": "account-missing-key", "tone": "warning", "label": "Missing key" },
+        { "id": "account-invalid-payload", "action": "account-invalid-payload", "tone": "warning", "label": "Invalid payload" },
+        { "id": "account-unsupported-currency", "action": "account-unsupported-currency", "tone": "warning", "label": "Unsupported currency" }
+      ]
+    },
+    "events": {
+      "id": "events",
+      "endpointId": "events-stream",
+      "domain": "gateway",
+      "formType": "events",
+      "method": "GET",
+      "path": "/api/events",
+      "visibility": "public-protected",
+      "title": "Open stream",
+      "description": "Keeps the authenticated event stream open for payment and premium updates.",
+      "scenarios": [
+        { "id": "events-probe", "action": "events-probe", "tone": "warning", "label": "Without auth" },
+        { "id": "events-connect", "action": "events-connect", "tone": "primary", "label": "Connect" }
+      ]
+    },
+    "webhook": {
+      "id": "webhook",
+      "endpointId": "webhook-ingress",
+      "domain": "webhook",
+      "formType": "webhook",
+      "method": "POST",
+      "path": "/webhooks/payments",
+      "visibility": "public",
+      "title": "Confirm webhook",
+      "description": "Posts the signed payment confirmation callback.",
+      "scenarios": [
+        { "id": "webhook-confirmed", "action": "webhook-confirmed", "tone": "primary", "label": "Confirmed" },
+        { "id": "webhook-unsupported", "action": "webhook-unsupported", "tone": "warning", "label": "Unsupported status" },
+        { "id": "webhook-invalid-signature", "action": "webhook-invalid-signature", "tone": "warning", "label": "Invalid signature" },
+        { "id": "webhook-expired-signature", "action": "webhook-expired-signature", "tone": "warning", "label": "Expired signature" }
+      ]
+    },
+    "gateway-live": {
+      "id": "gateway-live",
+      "endpointId": "gateway-live",
+      "domain": "gateway",
+      "formType": "health",
+      "method": "GET",
+      "path": "/api/health/live",
+      "visibility": "public",
+      "title": "Gateway live",
+      "description": "Checks gateway liveness.",
+      "scenarios": [{ "id": "gateway-live", "action": "health-run", "tone": "secondary", "label": "Run" }]
+    },
+    "gateway-ready": {
+      "id": "gateway-ready",
+      "endpointId": "gateway-ready",
+      "domain": "gateway",
+      "formType": "health",
+      "method": "GET",
+      "path": "/api/health/ready",
+      "visibility": "public",
+      "title": "Gateway ready",
+      "description": "Checks gateway readiness and RabbitMQ connectivity.",
+      "scenarios": [{ "id": "gateway-ready", "action": "health-run", "tone": "secondary", "label": "Run" }]
+    },
+    "webhook-live": {
+      "id": "webhook-live",
+      "endpointId": "webhook-live",
+      "domain": "webhook",
+      "formType": "health",
+      "method": "GET",
+      "path": "/webhooks/health/live",
+      "visibility": "public",
+      "title": "Webhook live",
+      "description": "Checks webhook ingress liveness.",
+      "scenarios": [{ "id": "webhook-live", "action": "health-run", "tone": "secondary", "label": "Run" }]
+    },
+    "webhook-ready": {
+      "id": "webhook-ready",
+      "endpointId": "webhook-ready",
+      "domain": "webhook",
+      "formType": "health",
+      "method": "GET",
+      "path": "/webhooks/health/ready",
+      "visibility": "public",
+      "title": "Webhook ready",
+      "description": "Checks webhook publishing readiness.",
+      "scenarios": [{ "id": "webhook-ready", "action": "health-run", "tone": "secondary", "label": "Run" }]
+    },
+    "payment-live": {
+      "id": "payment-live",
+      "endpointId": "payment-live",
+      "domain": "payments",
+      "formType": "health",
+      "method": "GET",
+      "path": "/internal/payment/health/live",
+      "visibility": "internal-proxy",
+      "title": "Payments live",
+      "description": "Checks payment-service liveness through the local proxy.",
+      "scenarios": [{ "id": "payment-live", "action": "health-run", "tone": "secondary", "label": "Run" }]
+    },
+    "payment-ready": {
+      "id": "payment-ready",
+      "endpointId": "payment-ready",
+      "domain": "payments",
+      "formType": "health",
+      "method": "GET",
+      "path": "/internal/payment/health/ready",
+      "visibility": "internal-proxy",
+      "title": "Payments ready",
+      "description": "Checks payment-service readiness through the local proxy.",
+      "scenarios": [{ "id": "payment-ready", "action": "health-run", "tone": "secondary", "label": "Run" }]
+    },
+    "onboarding-live": {
+      "id": "onboarding-live",
+      "endpointId": "onboarding-live",
+      "domain": "onboarding",
+      "formType": "health",
+      "method": "GET",
+      "path": "/internal/onboarding/health/live",
+      "visibility": "internal-proxy",
+      "title": "Onboarding live",
+      "description": "Checks onboarding-service liveness through the local proxy.",
+      "scenarios": [{ "id": "onboarding-live", "action": "health-run", "tone": "secondary", "label": "Run" }]
+    },
+    "onboarding-ready": {
+      "id": "onboarding-ready",
+      "endpointId": "onboarding-ready",
+      "domain": "onboarding",
+      "formType": "health",
+      "method": "GET",
+      "path": "/internal/onboarding/health/ready",
+      "visibility": "internal-proxy",
+      "title": "Onboarding ready",
+      "description": "Checks onboarding-service readiness through the local proxy.",
+      "scenarios": [{ "id": "onboarding-ready", "action": "health-run", "tone": "secondary", "label": "Run" }]
+    },
+    "identity-live": {
+      "id": "identity-live",
+      "endpointId": "identity-live",
+      "domain": "identity",
+      "formType": "health",
+      "method": "GET",
+      "path": "/internal/identity/actuator/health/liveness",
+      "visibility": "internal-proxy",
+      "title": "Identity live",
+      "description": "Checks identity-service liveness through the local proxy.",
+      "scenarios": [{ "id": "identity-live", "action": "health-run", "tone": "secondary", "label": "Run" }]
+    },
+    "identity-ready": {
+      "id": "identity-ready",
+      "endpointId": "identity-ready",
+      "domain": "identity",
+      "formType": "health",
+      "method": "GET",
+      "path": "/internal/identity/actuator/health/readiness",
+      "visibility": "internal-proxy",
+      "title": "Identity ready",
+      "description": "Checks identity-service readiness through the local proxy.",
+      "scenarios": [{ "id": "identity-ready", "action": "health-run", "tone": "secondary", "label": "Run" }]
+    },
+    "membership-live": {
+      "id": "membership-live",
+      "endpointId": "membership-live",
+      "domain": "membership",
+      "formType": "health",
+      "method": "GET",
+      "path": "/internal/membership/actuator/health/liveness",
+      "visibility": "internal-proxy",
+      "title": "Membership live",
+      "description": "Checks membership-service liveness through the local proxy.",
+      "scenarios": [{ "id": "membership-live", "action": "health-run", "tone": "secondary", "label": "Run" }]
+    },
+    "membership-ready": {
+      "id": "membership-ready",
+      "endpointId": "membership-ready",
+      "domain": "membership",
+      "formType": "health",
+      "method": "GET",
+      "path": "/internal/membership/actuator/health/readiness",
+      "visibility": "internal-proxy",
+      "title": "Membership ready",
+      "description": "Checks membership-service readiness through the local proxy.",
+      "scenarios": [{ "id": "membership-ready", "action": "health-run", "tone": "secondary", "label": "Run" }]
+    },
+    "custom": {
+      "id": "custom",
+      "endpointId": "custom-request",
+      "domain": "utility",
+      "formType": "custom",
+      "method": "ANY",
+      "path": "custom",
+      "visibility": "utility",
+      "title": "Custom request",
+      "description": "Sends any manual request outside the main flows.",
+      "scenarios": [{ "id": "custom-request", "action": "custom-request", "tone": "secondary", "label": "Send request" }]
+    }
+  }
+}

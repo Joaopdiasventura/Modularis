@@ -1,0 +1,56 @@
+services:
+  rabbitmq:
+    image: rabbitmq:4-management
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: user
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "rabbitmq-diagnostics -q ping && rabbitmq-diagnostics -q check_port_connectivity",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+
+  onboarding-mock:
+    build: .
+    command: ["node", "doubles/onboarding-responder.mjs"]
+    environment:
+      MODULARIS_RABBITMQ_URL: amqp://user:user@rabbitmq:5672/
+      MODULARIS_COMMAND_EXCHANGE: modularis.commands
+      MODULARIS_RESPONSE_EXCHANGE: modularis.responses
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  api-gateway:
+    build: .
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      MODULARIS_SERVICE_NAME: api-gateway
+      MODULARIS_ALLOWED_ORIGINS: http://localhost
+      MODULARIS_RABBITMQ_URL: amqp://user:user@rabbitmq:5672/
+      MODULARIS_COMMAND_EXCHANGE: modularis.commands
+      MODULARIS_EVENT_EXCHANGE: modularis.events
+      MODULARIS_RESPONSE_EXCHANGE: modularis.responses
+      MODULARIS_RPC_TIMEOUT_MS: 5000
+      MODULARIS_JWT_SECRET: change-this-for-production-at-least-32-characters
+      MODULARIS_JWT_EXPIRES_IN: 1h
+      MODULARIS_AUTH_COOKIE_NAME: modularis_auth
+      MODULARIS_AUTH_COOKIE_SECURE: "false"
+      MODULARIS_AUTH_COOKIE_SAMESITE: lax
+      MODULARIS_GATEWAY_RATE_LIMIT_TTL_MS: 60000
+      MODULARIS_GATEWAY_RATE_LIMIT_LIMIT: 30
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      onboarding-mock:
+        condition: service_started
+    ports:
+      - "3000:3000"

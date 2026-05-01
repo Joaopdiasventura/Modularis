@@ -1,0 +1,59 @@
+# OS and editor noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Local environment files
+.env
+.env.local
+.env.*.local
+!**/.env.example
+
+# Logs, traces, and runtime leftovers
+*.log
+*.pid
+*.pid.lock
+*.seed
+*.stackdump
+*.trace
+*.cpuprofile
+*.heapsnapshot
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Temporary and debug outputs
+*.tmp
+*.temp
+*.bak
+*.old
+*.orig
+*.rej
+.cache/
+.eslintcache
+.nyc_output/
+tmp/
+temp/
+logs/
+playwright-report/
+test-results/
+
+# JavaScript and Node
+node_modules/
+dist/
+coverage/
+
+# Java and Gradle
+.gradle/
+build/
+out/
+
+# Go
+bin/
+coverage.out
+*.test
+

@@ -1,0 +1,4546 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Modularis Flow Demo</title>
+    <style>
+:root {
+  --bg: #06080d;
+  --bg-soft: #0c1118;
+  --surface: rgba(11, 16, 25, 0.92);
+  --surface-alt: rgba(255, 255, 255, 0.04);
+  --surface-raised: rgba(18, 24, 34, 0.96);
+  --line: rgba(255, 255, 255, 0.08);
+  --line-strong: rgba(255, 255, 255, 0.14);
+  --ink: #f4efe5;
+  --ink-soft: #ddd5c7;
+  --muted: #92a0b7;
+  --accent: #df334f;
+  --accent-soft: rgba(223, 51, 79, 0.14);
+  --accent-strong: #8d2037;
+  --success: #59d79c;
+  --success-soft: rgba(89, 215, 156, 0.16);
+  --warning: #efb35f;
+  --warning-soft: rgba(239, 179, 95, 0.16);
+  --danger: #ff8293;
+  --danger-soft: rgba(255, 130, 147, 0.16);
+  --shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+  --radius-xl: 24px;
+  --radius-lg: 18px;
+  --radius-md: 14px;
+  --radius-sm: 10px;
+  --font-heading:
+    "Bahnschrift", "Aptos Display", "Segoe UI Variable Display", "Trebuchet MS",
+    sans-serif;
+  --font-body:
+    "Aptos", "Segoe UI Variable Text", "Segoe UI", "Trebuchet MS", sans-serif;
+  --font-mono: "Cascadia Code", Consolas, "SFMono-Regular", monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at top left, rgba(223, 51, 79, 0.12), transparent 22%),
+    radial-gradient(circle at 90% 0%, rgba(111, 192, 255, 0.08), transparent 20%),
+    linear-gradient(180deg, #04060a 0%, #080c13 100%);
+  font: 15px/1.55 var(--font-body);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+body.drawer-open {
+  overflow: hidden;
+}
+
+h1,
+h2,
+h3,
+h4,
+p,
+pre {
+  margin: 0;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-heading);
+  letter-spacing: -0.03em;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+a {
+  color: inherit;
+}
+
+::selection {
+  background: rgba(223, 51, 79, 0.25);
+}
+
+.page-shell {
+  min-height: 100vh;
+}
+
+.page {
+  width: min(100%, 1040px);
+  margin: 0 auto;
+  padding: 16px 16px 48px;
+}
+
+.hero,
+.session-shell,
+.flow-card,
+.advanced-shell,
+.advanced-block,
+.probe-card,
+.result-drawer__panel,
+.toast {
+  border: 1px solid var(--line);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01)),
+    var(--surface);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(10px);
+}
+
+.hero,
+.session-shell,
+.advanced-shell,
+.advanced-block,
+.result-drawer__panel {
+  border-radius: var(--radius-xl);
+}
+
+.flow-card,
+.probe-card,
+.context-pill,
+.health-tile,
+.mini-section,
+.route-status,
+.drawer-block,
+.alert-banner,
+.toast,
+.code,
+.stream-log {
+  border-radius: var(--radius-lg);
+}
+
+.hero {
+  padding: 20px;
+}
+
+.topbar,
+.topbar__locale,
+.hero__actions,
+.hero__chips,
+.session-shell__base,
+.session-shell__head,
+.button-row,
+.flow-card__head,
+.health-tile__top,
+.probe-card__head,
+.result-summary,
+.result-summary__meta,
+.result-summary__actions,
+.result-drawer__header,
+.result-drawer__meta,
+.result-drawer__toolbar,
+.mini-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.topbar {
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.topbar__brand {
+  display: grid;
+  gap: 4px;
+}
+
+.topbar__eyebrow,
+.hero__eyebrow,
+.context-pill__label,
+.drawer-eyebrow,
+.flow-step {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.topbar__locale {
+  text-decoration: none;
+}
+
+.hero__copy {
+  display: grid;
+  gap: 14px;
+}
+
+.hero h1 {
+  max-width: 10ch;
+  font-size: clamp(2.2rem, 6vw, 3.6rem);
+  line-height: 0.96;
+}
+
+.hero__summary {
+  max-width: 40ch;
+  color: var(--ink-soft);
+  font-size: 1rem;
+}
+
+.chip,
+.status-pill,
+.flow-step {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.chip {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--ink-soft);
+}
+
+.chip--soft {
+  border: 1px solid var(--line);
+}
+
+.flow-step {
+  min-width: 52px;
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.status-pill.neutral {
+  color: var(--ink-soft);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.status-pill.ok {
+  color: var(--success);
+  background: var(--success-soft);
+}
+
+.status-pill.warn {
+  color: var(--warning);
+  background: var(--warning-soft);
+}
+
+.status-pill.bad {
+  color: var(--danger);
+  background: var(--danger-soft);
+}
+
+.button,
+.scenario-button,
+.link-button {
+  min-height: 44px;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  transition:
+    transform 150ms ease,
+    border-color 150ms ease,
+    background-color 150ms ease,
+    opacity 150ms ease;
+}
+
+.button,
+.scenario-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 14px;
+  font-weight: 700;
+}
+
+.button {
+  color: #fff6f1;
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+}
+
+.button.secondary,
+.scenario-button.secondary {
+  color: var(--ink);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.08)),
+    rgba(255, 255, 255, 0.06);
+}
+
+.button.ghost,
+.scenario-button,
+.link-button {
+  color: var(--ink-soft);
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.scenario-button.warn {
+  color: var(--warning);
+  background: var(--warning-soft);
+}
+
+.scenario-button.danger {
+  color: var(--danger);
+  background: var(--danger-soft);
+}
+
+.button:hover,
+.scenario-button:hover,
+.link-button:hover {
+  transform: translateY(-1px);
+}
+
+.button:focus-visible,
+.scenario-button:focus-visible,
+.link-button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+summary:focus-visible,
+a:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.92);
+  outline-offset: 3px;
+}
+
+.context-bar,
+.session-shell__details,
+.field-grid,
+.state-list,
+.flow-stack,
+.scenario-row,
+.health-grid,
+.probe-grid,
+.result-drawer__body,
+.drawer-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.context-bar {
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  margin: 16px 0 14px;
+}
+
+.context-pill {
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.context-pill strong {
+  display: block;
+  color: var(--ink-soft);
+  font-size: 0.92rem;
+  word-break: break-word;
+}
+
+.session-shell {
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.session-shell__head {
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.session-shell__head h2,
+.flow-card__title h2,
+.advanced-block__head h3 {
+  font-size: 1.04rem;
+}
+
+.session-shell__head p,
+.flow-card__title p,
+.advanced-block__head p,
+.probe-card__head p {
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.session-shell__base {
+  gap: 12px;
+  align-items: end;
+  margin-bottom: 12px;
+}
+
+.session-shell__base .field {
+  flex: 1 1 320px;
+}
+
+.toggle {
+  display: inline-flex;
+  gap: 10px;
+  align-items: center;
+  min-height: 46px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--ink-soft);
+}
+
+.toggle input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+.mini-section {
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.03);
+  overflow: hidden;
+}
+
+.mini-section summary,
+.inline-details summary,
+.advanced-shell summary {
+  cursor: pointer;
+  list-style: none;
+}
+
+.mini-section summary::-webkit-details-marker,
+.inline-details summary::-webkit-details-marker,
+.advanced-shell summary::-webkit-details-marker {
+  display: none;
+}
+
+.mini-section summary {
+  padding: 14px 16px;
+  font-weight: 700;
+}
+
+.mini-section__body {
+  display: grid;
+  gap: 12px;
+  padding: 0 16px 16px;
+}
+
+.inline-details {
+  display: grid;
+  gap: 12px;
+  padding: 10px 0 0;
+}
+
+.inline-details summary {
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+}
+
+.field-grid--two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.field-grid--three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+input,
+textarea,
+select {
+  width: 100%;
+  color: var(--ink);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-md);
+  background: rgba(4, 7, 12, 0.9);
+  padding: 12px;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: rgba(146, 160, 183, 0.72);
+}
+
+textarea {
+  min-height: 176px;
+  resize: vertical;
+  font: 0.9rem/1.45 var(--font-mono);
+}
+
+.compact-textarea {
+  min-height: 112px;
+}
+
+.helper-box {
+  display: flex;
+  align-items: end;
+}
+
+.code,
+.stream-log,
+.route-status,
+.alert-banner,
+.drawer-block {
+  border: 1px solid var(--line);
+  background: rgba(5, 8, 14, 0.88);
+}
+
+.code {
+  padding: 10px 12px;
+  color: #f2d7de;
+  font: 0.88rem/1.4 var(--font-mono);
+  word-break: break-word;
+}
+
+.flow-stack {
+  gap: 14px;
+}
+
+.flow-card,
+.probe-card {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+}
+
+.flow-card__head {
+  align-items: start;
+}
+
+.flow-card__title {
+  display: grid;
+  gap: 4px;
+}
+
+.scenario-row {
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+}
+
+.stream-strip {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.stream-strip__item {
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.stream-strip__item span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin-bottom: 4px;
+}
+
+.stream-log {
+  min-height: 132px;
+  max-height: 180px;
+  padding: 12px;
+  color: var(--ink-soft);
+  white-space: pre-wrap;
+  overflow: auto;
+}
+
+.route-status {
+  min-height: 60px;
+  padding: 12px;
+}
+
+.route-status:empty {
+  display: none;
+}
+
+.route-status__empty {
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.result-summary {
+  justify-content: space-between;
+}
+
+.result-summary__meta {
+  gap: 8px;
+}
+
+.result-summary__actions {
+  gap: 8px;
+}
+
+.result-summary__hint {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.link-button {
+  min-height: 34px;
+  padding: 0 12px;
+}
+
+.alert-banner {
+  padding: 12px;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+}
+
+.alert-banner.info {
+  border-color: var(--line);
+}
+
+.alert-banner.success {
+  border-color: rgba(89, 215, 156, 0.24);
+  color: var(--success);
+}
+
+.alert-banner.danger {
+  border-color: rgba(255, 130, 147, 0.24);
+  color: var(--danger);
+}
+
+.state-list {
+  gap: 8px;
+}
+
+.state-row {
+  display: grid;
+  gap: 4px;
+}
+
+.state-row span {
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.state-hidden,
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.advanced-shell {
+  margin-top: 18px;
+  overflow: hidden;
+}
+
+.advanced-shell summary {
+  display: grid;
+  gap: 4px;
+  padding: 16px 18px;
+}
+
+.advanced-shell summary span {
+  font-weight: 700;
+}
+
+.advanced-shell summary small {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.advanced-shell__body {
+  display: grid;
+  gap: 14px;
+  padding: 0 16px 16px;
+}
+
+.advanced-block {
+  padding: 16px;
+}
+
+.advanced-block__head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: space-between;
+  align-items: start;
+  margin-bottom: 14px;
+}
+
+.advanced-meta {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.health-grid {
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+}
+
+.health-tile {
+  padding: 12px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.health-tile__top {
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.health-tile h4 {
+  font-size: 0.95rem;
+}
+
+.health-tile p {
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.probe-grid {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.probe-card__head {
+  justify-content: space-between;
+  align-items: start;
+}
+
+.probe-card__head h4 {
+  font-size: 0.98rem;
+}
+
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(0, 0, 0, 0.46);
+}
+
+.result-drawer {
+  position: fixed;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 50;
+  width: min(100%, 540px);
+  padding: 12px;
+}
+
+.result-drawer__panel {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  height: 100%;
+  padding: 16px;
+  background: rgba(10, 15, 23, 0.97);
+}
+
+.result-drawer__header {
+  justify-content: space-between;
+  align-items: start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.result-drawer__header h2 {
+  font-size: 1.08rem;
+}
+
+.result-drawer__toolbar {
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.result-drawer__body {
+  min-height: 0;
+  overflow: auto;
+}
+
+.drawer-grid {
+  grid-template-columns: 1fr;
+}
+
+.drawer-block {
+  padding: 14px;
+}
+
+.drawer-block h3 {
+  margin-bottom: 8px;
+  color: var(--muted);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.drawer-block pre {
+  color: var(--ink-soft);
+  font: 0.88rem/1.45 var(--font-mono);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.toast-stack {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 60;
+  display: grid;
+  gap: 10px;
+  width: min(320px, calc(100vw - 32px));
+}
+
+.toast {
+  padding: 12px 14px;
+}
+
+.toast.success {
+  border-color: rgba(89, 215, 156, 0.26);
+}
+
+.toast.warning {
+  border-color: rgba(239, 179, 95, 0.26);
+}
+
+.toast h4 {
+  margin-bottom: 4px;
+  font-size: 0.95rem;
+}
+
+.toast p {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.fade-out {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 200ms ease, transform 200ms ease;
+}
+
+@media (min-width: 840px) {
+  .drawer-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .field-grid--two,
+  .field-grid--three,
+  .stream-strip {
+    grid-template-columns: 1fr;
+  }
+
+  .result-drawer {
+    top: auto;
+    left: 0;
+    width: 100%;
+    height: min(86vh, 720px);
+    padding: 12px 12px 0;
+  }
+
+  .result-drawer__panel {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+}
+
+@media (max-width: 720px) {
+  .page {
+    padding: 14px 12px 40px;
+  }
+
+  .hero,
+  .session-shell,
+  .flow-card,
+  .advanced-shell,
+  .advanced-block,
+  .probe-card,
+  .result-drawer__panel {
+    border-radius: 20px;
+  }
+
+  .button,
+  .scenario-button {
+    width: 100%;
+  }
+
+  .result-summary,
+  .result-drawer__header,
+  .result-drawer__toolbar,
+  .advanced-block__head,
+  .probe-card__head,
+  .flow-card__head,
+  .session-shell__base {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+    </style>
+  </head>
+  <body>
+    <div class="page-shell">
+      <main class="page">
+        
+    <header class="hero">
+      
+    <div class="topbar">
+      <div class="topbar__brand">
+        <span class="topbar__eyebrow">fast microservice demo</span>
+        <strong>Modularis Sandbox</strong>
+      </div>
+      <a class="topbar__locale" href="/api/docs/pt-br">
+        <span class="chip chip--soft">EN</span>
+        <span>PT-BR</span>
+      </a>
+    </div>
+  
+      <div class="hero__copy">
+        <span class="hero__eyebrow">sandbox / demo</span>
+        <h1>Modularis Flow Demo</h1>
+        <p class="hero__summary">Create an account, open the stream, and confirm a webhook in a few clicks.</p>
+        <div class="hero__actions">
+          <button class="button" type="button" data-playbook-action="playbook-account-create">Create account</button>
+          <button class="button secondary" type="button" data-playbook-action="playbook-arm-stream">Open stream</button>
+          <button class="button secondary" type="button" data-playbook-action="playbook-confirmed-webhook">Confirm webhook</button>
+        </div>
+        <div class="hero__chips">
+          <span class="chip">local stack</span><span class="chip">real services</span>
+          <span class="chip chip--soft">/api/docs</span>
+        </div>
+      </div>
+    </header>
+  
+        
+    <section class="context-bar" aria-label="Quick context">
+      <article class="context-pill">
+        <span class="context-pill__label">Base</span>
+        <strong id="context-base-url">http://localhost</strong>
+      </article>
+      <article class="context-pill">
+        <span class="context-pill__label">Auth</span>
+        <strong id="context-auth">not set</strong>
+      </article>
+      <article class="context-pill">
+        <span class="context-pill__label">Stream</span>
+        <strong id="context-stream">not set</strong>
+      </article>
+      <article class="context-pill">
+        <span class="context-pill__label">Alerts</span>
+        <strong id="context-notifications">not set</strong>
+      </article>
+      <span class="visually-hidden" id="context-credentials">not set</span>
+    </section>
+  
+        
+    <section class="session-shell">
+      <div class="session-shell__head">
+        <div>
+          <h2>Session</h2>
+          <p>Base, auth, and quick state.</p>
+        </div>
+      </div>
+
+      <div class="session-shell__base">
+        <label class="field">
+          <span>Base URL</span>
+          <input id="base-url" type="text" value="http://localhost" />
+        </label>
+        <label class="toggle" for="include-credentials">
+          <input id="include-credentials" type="checkbox" checked />
+          <span>Use browser cookies</span>
+        </label>
+      </div>
+
+      <div class="session-shell__details">
+        <details class="mini-section">
+          <summary>Auth</summary>
+          <div class="mini-section__body">
+            <label class="field">
+              <span>Bearer token</span>
+              <textarea id="bearer-token" class="compact-textarea" spellcheck="false" placeholder="Paste a JWT here"></textarea>
+            </label>
+            <div class="field-grid field-grid--two">
+              <label class="field">
+                <span>User id</span>
+                <input id="jwt-user-id" type="text" placeholder="user uuid" />
+              </label>
+              <label class="field">
+                <span>JWT secret</span>
+                <input id="jwt-secret" type="text" value="change-this-for-production-at-least-32-characters" />
+              </label>
+            </div>
+            <details class="inline-details">
+              <summary>Global headers</summary>
+              <textarea id="global-headers" class="compact-textarea" spellcheck="false">{}</textarea>
+            </details>
+            <div class="button-row">
+              <button class="button secondary" id="generate-jwt" type="button">Generate JWT</button>
+              <button class="button ghost" id="use-latest-user-id" type="button">Latest user id</button>
+              <button class="button ghost" id="clear-token" type="button">Clear token</button>
+            </div>
+          </div>
+        </details>
+
+        <details class="mini-section">
+          <summary>Alerts</summary>
+          <div class="mini-section__body">
+            <div class="mini-inline">
+              <span class="status-pill neutral" id="notification-status-pill">not set</span>
+              <span id="notification-status-text">Enable notifications if you want native alerts.</span>
+            </div>
+            <div class="code code--inline" id="notification-last-message">No alerts yet.</div>
+            <div class="button-row">
+              <button class="button secondary" id="request-notification-permission" type="button">Enable alerts</button>
+              <button class="button ghost" id="clear-notification-banner" type="button">Clear</button>
+            </div>
+            <div class="alert-banner info" id="notification-fallback-banner">If the browser blocks them, the page still shows the message.</div>
+          </div>
+        </details>
+
+        <details class="mini-section">
+          <summary>State</summary>
+          <div class="mini-section__body">
+            <div class="state-list">
+              <div class="state-row">
+                <span>Last user id</span>
+                <strong id="state-user-id">not set</strong>
+              </div>
+              <div class="state-row">
+                <span>Last payment reference</span>
+                <strong id="state-payment-reference">not set</strong>
+              </div>
+              <div class="state-row">
+                <span>Last event</span>
+                <strong id="state-last-event">not set</strong>
+              </div>
+              <div class="state-hidden">
+                <span id="state-payment-id">not set</span>
+                <span id="state-idempotency-key">not set</span>
+                <span id="state-correlation-id">not set</span>
+              </div>
+            </div>
+            <div class="button-row">
+              <button class="button secondary" id="copy-state" type="button">Copy state</button>
+              <button class="button ghost" id="clear-state" type="button">Clear state</button>
+            </div>
+          </div>
+        </details>
+      </div>
+    </section>
+  
+        <section class="flow-stack" aria-label="Main flows">
+          
+    <article
+      class="flow-card"
+      id="route-accounts"
+      data-route-id="accounts"
+      data-route-domain="gateway"
+      data-route-form-type="account"
+      data-route-visibility="public"
+    >
+      <div class="flow-card__head">
+        <span class="flow-step">01</span>
+        <div class="flow-card__title">
+          <h2>Create account</h2>
+          <p>Triggers onboarding and creates the payment intent.</p>
+        </div>
+      </div>
+      <div class="code">POST /api/accounts</div>
+      
+      <div class="field-grid field-grid--two">
+        <label class="field">
+          <span>Idempotency-Key</span>
+          <input id="accounts--idempotencyKey" type="text" />
+        </label>
+        <div class="helper-box">
+          <button class="button ghost" type="button" data-helper-action="generate-account-key" data-route-id="accounts">Generate key</button>
+        </div>
+      </div>
+      <label class="field">
+        <span>JSON payload</span>
+        <textarea id="accounts--payload" spellcheck="false">{
+  &quot;email&quot;: &quot;manual.test@example.com&quot;,
+  &quot;name&quot;: &quot;Manual Test&quot;,
+  &quot;cellphone&quot;: &quot;5511999999999&quot;,
+  &quot;taxId&quot;: &quot;12345678900&quot;,
+  &quot;amount&quot;: 49,
+  &quot;currency&quot;: &quot;BRL&quot;
+}</textarea>
+      </label>
+      
+    <details class="inline-details">
+      <summary>Request options</summary>
+      <div class="field-grid field-grid--two">
+        
+        <label class="field">
+          <span>Path</span>
+          <input id="accounts--path" type="text" value="/api/accounts" />
+        </label>
+        <label class="field">
+          <span>Query</span>
+          <input id="accounts--query" type="text" placeholder="foo=bar" />
+        </label>
+      </div>
+      <label class="field">
+        <span>Headers</span>
+        <textarea id="accounts--headers" class="compact-textarea" spellcheck="false">{}</textarea>
+      </label>
+    </details>
+  
+      
+    <div class="scenario-row" aria-label="Scenarios">
+      
+            <button
+              class="scenario-button "
+              type="button"
+              data-scenario-id="account-create"
+              data-scenario-action="account-create"
+              data-route-id="accounts"
+            >
+              Create account
+            </button>
+          
+            <button
+              class="scenario-button secondary"
+              type="button"
+              data-scenario-id="account-replay"
+              data-scenario-action="account-replay"
+              data-route-id="accounts"
+            >
+              Replay
+            </button>
+          
+            <button
+              class="scenario-button secondary"
+              type="button"
+              data-scenario-id="account-conflict-prime"
+              data-scenario-action="account-conflict-prime"
+              data-route-id="accounts"
+            >
+              Prime key
+            </button>
+          
+            <button
+              class="scenario-button danger"
+              type="button"
+              data-scenario-id="account-conflict-replay"
+              data-scenario-action="account-conflict-replay"
+              data-route-id="accounts"
+            >
+              Conflict replay
+            </button>
+          
+            <button
+              class="scenario-button warn"
+              type="button"
+              data-scenario-id="account-missing-key"
+              data-scenario-action="account-missing-key"
+              data-route-id="accounts"
+            >
+              Missing key
+            </button>
+          
+            <button
+              class="scenario-button warn"
+              type="button"
+              data-scenario-id="account-invalid-payload"
+              data-scenario-action="account-invalid-payload"
+              data-route-id="accounts"
+            >
+              Invalid payload
+            </button>
+          
+            <button
+              class="scenario-button warn"
+              type="button"
+              data-scenario-id="account-unsupported-currency"
+              data-scenario-action="account-unsupported-currency"
+              data-route-id="accounts"
+            >
+              Unsupported currency
+            </button>
+          
+    </div>
+  
+      
+    <div
+      class="route-status"
+      id="accounts--result"
+      data-result-empty-label="No test has been run yet."
+      data-result-title="Create account"
+    >
+      <span class="route-status__empty">No test has been run yet.</span>
+    </div>
+  
+    
+    </article>
+  
+          
+    <article
+      class="flow-card"
+      id="route-events"
+      data-route-id="events"
+      data-route-domain="gateway"
+      data-route-form-type="events"
+      data-route-visibility="public-protected"
+    >
+      <div class="flow-card__head">
+        <span class="flow-step">02</span>
+        <div class="flow-card__title">
+          <h2>Open stream</h2>
+          <p>Listens to authenticated user events.</p>
+        </div>
+      </div>
+      <div class="code">GET /api/events</div>
+      
+      <div class="stream-strip">
+        <div class="stream-strip__item">
+          <span>Stream state</span>
+          <strong id="stream-inline-state">not set</strong>
+        </div>
+        <div class="stream-strip__item">
+          <span>Events</span>
+          <strong id="stream-inline-count">0</strong>
+        </div>
+        <div class="stream-strip__item">
+          <span>Latest</span>
+          <strong id="stream-inline-last">not set</strong>
+        </div>
+      </div>
+      <label class="field">
+        <span>Live log</span>
+        <pre class="stream-log" id="events--log">No stream activity yet.</pre>
+      </label>
+      
+    <details class="inline-details">
+      <summary>Request options</summary>
+      <div class="field-grid field-grid--two">
+        
+        <label class="field">
+          <span>Path</span>
+          <input id="events--path" type="text" value="/api/events" />
+        </label>
+        <label class="field">
+          <span>Query</span>
+          <input id="events--query" type="text" placeholder="foo=bar" />
+        </label>
+      </div>
+      <label class="field">
+        <span>Headers</span>
+        <textarea id="events--headers" class="compact-textarea" spellcheck="false">{}</textarea>
+      </label>
+    </details>
+  
+      <div class="button-row">
+        <button class="button secondary" type="button" data-helper-action="disconnect-events" data-route-id="events">Close stream</button>
+        <button class="button ghost" type="button" data-helper-action="clear-events-log" data-route-id="events">Clear log</button>
+      </div>
+      
+    <div class="scenario-row" aria-label="Scenarios">
+      
+            <button
+              class="scenario-button warn"
+              type="button"
+              data-scenario-id="events-probe"
+              data-scenario-action="events-probe"
+              data-route-id="events"
+            >
+              Probe without auth
+            </button>
+          
+            <button
+              class="scenario-button "
+              type="button"
+              data-scenario-id="events-connect"
+              data-scenario-action="events-connect"
+              data-route-id="events"
+            >
+              Connect
+            </button>
+          
+    </div>
+  
+      
+    <div
+      class="route-status"
+      id="events--result"
+      data-result-empty-label="No test has been run yet."
+      data-result-title="Open stream"
+    >
+      <span class="route-status__empty">No test has been run yet.</span>
+    </div>
+  
+    
+    </article>
+  
+          
+    <article
+      class="flow-card"
+      id="route-webhook"
+      data-route-id="webhook"
+      data-route-domain="webhook"
+      data-route-form-type="webhook"
+      data-route-visibility="public"
+    >
+      <div class="flow-card__head">
+        <span class="flow-step">03</span>
+        <div class="flow-card__title">
+          <h2>Confirm webhook</h2>
+          <p>Posts the signed payment callback.</p>
+        </div>
+      </div>
+      <div class="code">POST /webhooks/payments</div>
+      
+      <div class="button-row">
+        <button class="button ghost" type="button" data-helper-action="load-latest-payment" data-route-id="webhook">Use latest payment</button>
+      </div>
+      <label class="field">
+        <span>JSON payload</span>
+        <textarea id="webhook--payload" spellcheck="false">{
+  &quot;eventId&quot;: &quot;11111111-1111-1111-1111-111111111111&quot;,
+  &quot;paymentReference&quot;: &quot;replace-from-latest-account&quot;,
+  &quot;amount&quot;: 49,
+  &quot;currency&quot;: &quot;BRL&quot;,
+  &quot;status&quot;: &quot;CONFIRMED&quot;,
+  &quot;occurredAt&quot;: &quot;2026-04-26T18:00:00.000Z&quot;
+}</textarea>
+      </label>
+      <details class="inline-details">
+        <summary>Signature</summary>
+        <div class="field-grid field-grid--three">
+          <label class="field">
+            <span>Path</span>
+            <input id="webhook--path" type="text" value="/webhooks/payments" />
+          </label>
+          <label class="field">
+            <span>Signature header</span>
+            <input id="webhook--headerName" type="text" value="x-payment-signature" />
+          </label>
+          <label class="field">
+            <span>Timestamp</span>
+            <input id="webhook--timestamp" type="number" />
+          </label>
+        </div>
+        <div class="field-grid field-grid--two">
+          <label class="field">
+            <span>Shared secret</span>
+            <input id="webhook--secret" type="text" value="change-this-webhook-secret-at-least-32-characters" />
+          </label>
+          <label class="field">
+            <span>Signature</span>
+            <input id="webhook--signature" type="text" />
+          </label>
+        </div>
+        <div class="button-row">
+          <button class="button secondary" type="button" data-helper-action="refresh-webhook-timestamp" data-route-id="webhook">Refresh time</button>
+          <button class="button ghost" type="button" data-helper-action="generate-webhook-signature" data-route-id="webhook">Generate signature</button>
+        </div>
+      </details>
+      
+    <div class="scenario-row" aria-label="Scenarios">
+      
+            <button
+              class="scenario-button "
+              type="button"
+              data-scenario-id="webhook-confirmed"
+              data-scenario-action="webhook-confirmed"
+              data-route-id="webhook"
+            >
+              Confirmed
+            </button>
+          
+            <button
+              class="scenario-button warn"
+              type="button"
+              data-scenario-id="webhook-unsupported"
+              data-scenario-action="webhook-unsupported"
+              data-route-id="webhook"
+            >
+              Unsupported status
+            </button>
+          
+            <button
+              class="scenario-button warn"
+              type="button"
+              data-scenario-id="webhook-invalid-signature"
+              data-scenario-action="webhook-invalid-signature"
+              data-route-id="webhook"
+            >
+              Invalid signature
+            </button>
+          
+            <button
+              class="scenario-button warn"
+              type="button"
+              data-scenario-id="webhook-expired-signature"
+              data-scenario-action="webhook-expired-signature"
+              data-route-id="webhook"
+            >
+              Expired signature
+            </button>
+          
+    </div>
+  
+      
+    <div
+      class="route-status"
+      id="webhook--result"
+      data-result-empty-label="No test has been run yet."
+      data-result-title="Confirm webhook"
+    >
+      <span class="route-status__empty">No test has been run yet.</span>
+    </div>
+  
+    
+    </article>
+  
+        </section>
+        
+    <details class="advanced-shell" id="advanced-tools">
+      <summary>
+        <span>Advanced tools</span>
+        <small>Internal health, custom request, notifications, and extra controls.</small>
+      </summary>
+      <div class="advanced-shell__body">
+        
+    <section class="advanced-block">
+      <div class="advanced-block__head">
+        <div>
+          <h3>Health</h3>
+          <p>Use sweep for the full stack or run individual probes.</p>
+        </div>
+        <div class="button-row">
+          <button class="button secondary" id="stack-sweep" type="button">Check services</button>
+          <span class="advanced-meta" id="stack-sweep-timestamp">Not checked</span>
+        </div>
+      </div>
+      <div class="health-grid">
+        
+              <article class="health-tile" data-health-service="gateway">
+                <div class="health-tile__top">
+                  <h4>Gateway</h4>
+                  <span class="status-pill neutral" id="health-gateway-status">Not checked</span>
+                </div>
+                <p id="health-gateway-detail">Not checked</p>
+              </article>
+            
+              <article class="health-tile" data-health-service="webhook">
+                <div class="health-tile__top">
+                  <h4>Webhook</h4>
+                  <span class="status-pill neutral" id="health-webhook-status">Not checked</span>
+                </div>
+                <p id="health-webhook-detail">Not checked</p>
+              </article>
+            
+              <article class="health-tile" data-health-service="payment">
+                <div class="health-tile__top">
+                  <h4>Payments</h4>
+                  <span class="status-pill neutral" id="health-payment-status">Not checked</span>
+                </div>
+                <p id="health-payment-detail">Not checked</p>
+              </article>
+            
+              <article class="health-tile" data-health-service="onboarding">
+                <div class="health-tile__top">
+                  <h4>Onboarding</h4>
+                  <span class="status-pill neutral" id="health-onboarding-status">Not checked</span>
+                </div>
+                <p id="health-onboarding-detail">Not checked</p>
+              </article>
+            
+              <article class="health-tile" data-health-service="identity">
+                <div class="health-tile__top">
+                  <h4>Identity</h4>
+                  <span class="status-pill neutral" id="health-identity-status">Not checked</span>
+                </div>
+                <p id="health-identity-detail">Not checked</p>
+              </article>
+            
+              <article class="health-tile" data-health-service="membership">
+                <div class="health-tile__top">
+                  <h4>Membership</h4>
+                  <span class="status-pill neutral" id="health-membership-status">Not checked</span>
+                </div>
+                <p id="health-membership-detail">Not checked</p>
+              </article>
+            
+      </div>
+    </section>
+  
+        <section class="advanced-block">
+          <div class="advanced-block__head">
+            <div>
+              <h3>Health</h3>
+              <p>Use sweep for the full stack or run individual probes.</p>
+            </div>
+          </div>
+          <div class="probe-grid">
+            
+    <article
+      class="probe-card"
+      id="route-gateway-live"
+      data-route-id="gateway-live"
+      data-route-domain="gateway"
+      data-route-form-type="health"
+      data-route-visibility="public"
+    >
+      <div class="probe-card__head">
+        <div>
+          <h4>Gateway live</h4>
+          <span class="chip chip--soft">public</span>
+        </div>
+        <button
+          class="button ghost"
+          type="button"
+          data-scenario-id="gateway-live"
+          data-scenario-action="health-run"
+          data-route-id="gateway-live"
+        >
+          Run
+        </button>
+      </div>
+      <label class="field">
+        <span>Path</span>
+        <input id="gateway-live--path" type="text" value="/api/health/live" />
+      </label>
+      <details class="inline-details">
+        <summary>Request options</summary>
+        <div class="field-grid field-grid--two">
+          <label class="field">
+            <span>Query</span>
+            <input id="gateway-live--query" type="text" placeholder="check=1" />
+          </label>
+          <label class="field">
+            <span>Headers</span>
+            <textarea id="gateway-live--headers" class="compact-textarea" spellcheck="false">{}</textarea>
+          </label>
+        </div>
+      </details>
+      
+    <div
+      class="route-status"
+      id="gateway-live--result"
+      data-result-empty-label="No test has been run yet."
+      data-result-title="Gateway live"
+    >
+      <span class="route-status__empty">No test has been run yet.</span>
+    </div>
+  
+    </article>
+  
+    <article
+      class="probe-card"
+      id="route-gateway-ready"
+      data-route-id="gateway-ready"
+      data-route-domain="gateway"
+      data-route-form-type="health"
+      data-route-visibility="public"
+    >
+      <div class="probe-card__head">
+        <div>
+          <h4>Gateway ready</h4>
+          <span class="chip chip--soft">public</span>
+        </div>
+        <button
+          class="button ghost"
+          type="button"
+          data-scenario-id="gateway-ready"
+          data-scenario-action="health-run"
+          data-route-id="gateway-ready"
+        >
+          Run
+        </button>
+      </div>
+      <label class="field">
+        <span>Path</span>
+        <input id="gateway-ready--path" type="text" value="/api/health/ready" />
+      </label>
+      <details class="inline-details">
+        <summary>Request options</summary>
+        <div class="field-grid field-grid--two">
+          <label class="field">
+            <span>Query</span>
+            <input id="gateway-ready--query" type="text" placeholder="check=1" />
+          </label>
+          <label class="field">
+            <span>Headers</span>
+            <textarea id="gateway-ready--headers" class="compact-textarea" spellcheck="false">{}</textarea>
+          </label>
+        </div>
+      </details>
+      
+    <div
+      class="route-status"
+      id="gateway-ready--result"
+      data-result-empty-label="No test has been run yet."
+      data-result-title="Gateway ready"
+    >
+      <span class="route-status__empty">No test has been run yet.</span>
+    </div>
+  
+    </article>
+  
+    <article
+      class="probe-card"
+      id="route-webhook-live"
+      data-route-id="webhook-live"
+      data-route-domain="webhook"
+      data-route-form-type="health"
+      data-route-visibility="public"
+    >
+      <div class="probe-card__head">
+        <div>
+          <h4>Webhook live</h4>
+          <span class="chip chip--soft">public</span>
+        </div>
+        <button
+          class="button ghost"
+          type="button"
+          data-scenario-id="webhook-live"
+          data-scenario-action="health-run"
+          data-route-id="webhook-live"
+        >
+          Run
+        </button>
+      </div>
+      <label class="field">
+        <span>Path</span>
+        <input id="webhook-live--path" type="text" value="/webhooks/health/live" />
+      </label>
+      <details class="inline-details">
+        <summary>Request options</summary>
+        <div class="field-grid field-grid--two">
+          <label class="field">
+            <span>Query</span>
+            <input id="webhook-live--query" type="text" placeholder="check=1" />
+          </label>
+          <label class="field">
+            <span>Headers</span>
+            <textarea id="webhook-live--headers" class="compact-textarea" spellcheck="false">{}</textarea>
+          </label>
+        </div>
+      </details>
+      
+    <div
+      class="route-status"
+      id="webhook-live--result"
+      data-result-empty-label="No test has been run yet."
+      data-result-title="Webhook live"
+    >
+      <span class="route-status__empty">No test has been run yet.</span>
+    </div>
+  
+    </article>
+  
+    <article
+      class="probe-card"
+      id="route-webhook-ready"
+      data-route-id="webhook-ready"
+      data-route-domain="webhook"
+      data-route-form-type="health"
+      data-route-visibility="public"
+    >
+      <div class="probe-card__head">
+        <div>
+          <h4>Webhook ready</h4>
+          <span class="chip chip--soft">public</span>
+        </div>
+        <button
+          class="button ghost"
+          type="button"
+          data-scenario-id="webhook-ready"
+          data-scenario-action="health-run"
+          data-route-id="webhook-ready"
+        >
+          Run
+        </button>
+      </div>
+      <label class="field">
+        <span>Path</span>
+        <input id="webhook-ready--path" type="text" value="/webhooks/health/ready" />
+      </label>
+      <details class="inline-details">
+        <summary>Request options</summary>
+        <div class="field-grid field-grid--two">
+          <label class="field">
+            <span>Query</span>
+            <input id="webhook-ready--query" type="text" placeholder="check=1" />
+          </label>
+          <label class="field">
+            <span>Headers</span>
+            <textarea id="webhook-ready--headers" class="compact-textarea" spellcheck="false">{}</textarea>
+          </label>
+        </div>
+      </details>
+      
+    <div
+      class="route-status"
+      id="webhook-ready--result"
+      data-result-empty-label="No test has been run yet."
+      data-result-title="Webhook ready"
+    >
+      <span class="route-status__empty">No test has been run yet.</span>
+    </div>
+  
+    </article>
+  
+    <article
+      class="probe-card"
+      id="route-payment-live"
+      data-route-id="payment-live"
+      data-route-domain="payments"
+      data-route-form-type="health"
+      data-route-visibility="internal-proxy"
+    >
+      <div class="probe-card__head">
+        <div>
+          <h4>Payments live</h4>
+          <span class="chip chip--soft">internal</span>
+        </div>
+        <button
+          class="button ghost"
+          type="button"
+          data-scenario-id="payment-live"
+          data-scenario-action="health-run"
+          data-route-id="payment-live"
+        >
+          Run
+        </button>
+      </div>
+      <label class="field">
+        <span>Path</span>
+        <input id="payment-live--path" type="text" value="/internal/payment/health/live" />
+      </label>
+      <details class="inline-details">
+        <summary>Request options</summary>
+        <div class="field-grid field-grid--two">
+          <label class="field">
+            <span>Query</span>
+            <input id="payment-live--query" type="text" placeholder="check=1" />
+          </label>
+          <label class="field">
+            <span>Headers</span>
+            <textarea id="payment-live--headers" class="compact-textarea" spellcheck="false">{}</textarea>
+          </label>
+        </div>
+      </details>
+      
+    <div
+      class="route-status"
+      id="payment-live--result"
+      data-result-empty-label="No test has been run yet."
+      data-result-title="Payments live"
+    >
+      <span class="route-status__empty">No test has been run yet.</span>
+    </div>
+  
+    </article>
+  
+    <article
+      class="probe-card"
+      id="route-payment-ready"
+      data-route-id="payment-ready"
+      data-route-domain="payments"
+      data-route-form-type="health"
+      data-route-visibility="internal-proxy"
+    >
+      <div class="probe-card__head">
+        <div>
+          <h4>Payments ready</h4>
+          <span class="chip chip--soft">internal</span>
+        </div>
+        <button
+          class="button ghost"
+          type="button"
+          data-scenario-id="payment-ready"
+          data-scenario-action="health-run"
+          data-route-id="payment-ready"
+        >
+          Run
+        </button>
+      </div>
+      <label class="field">
+        <span>Path</span>
+        <input id="payment-ready--path" type="text" value="/internal/payment/health/ready" />
+      </label>
+      <details class="inline-details">
+        <summary>Request options</summary>
+        <div class="field-grid field-grid--two">
+          <label class="field">
+            <span>Query</span>
+            <input id="payment-ready--query" type="text" placeholder="check=1" />
+          </label>
+          <label class="field">
+            <span>Headers</span>
+            <textarea id="payment-ready--headers" class="compact-textarea" spellcheck="false">{}</textarea>
+          </label>
+        </div>
+      </details>
+      
+    <div
+      class="route-status"
+      id="payment-ready--result"
+      data-result-empty-label="No test has been run yet."
+      data-result-title="Payments ready"
+    >
+      <span class="route-status__empty">No test has been run yet.</span>
+    </div>
+  
+    </article>
+  
+    <article
+      class="probe-card"
+      id="route-onboarding-live"
+      data-route-id="onboarding-live"
+      data-route-domain="onboarding"
+      data-route-form-type="health"
+      data-route-visibility="internal-proxy"
+    >
+      <div class="probe-card__head">
+        <div>
+          <h4>Onboarding live</h4>
+          <span class="chip chip--soft">internal</span>
+        </div>
+        <button
+          class="button ghost"
+          type="button"
+          data-scenario-id="onboarding-live"
+          data-scenario-action="health-run"
+          data-route-id="onboarding-live"
+        >
+          Run
+        </button>
+      </div>
+      <label class="field">
+        <span>Path</span>
+        <input id="onboarding-live--path" type="text" value="/internal/onboarding/health/live" />
+      </label>
+      <details class="inline-details">
+        <summary>Request options</summary>
+        <div class="field-grid field-grid--two">
+          <label class="field">
+            <span>Query</span>
+            <input id="onboarding-live--query" type="text" placeholder="check=1" />
+          </label>
+          <label class="field">
+            <span>Headers</span>
+            <textarea id="onboarding-live--headers" class="compact-textarea" spellcheck="false">{}</textarea>
+          </label>
+        </div>
+      </details>
+      
+    <div
+      class="route-status"
+      id="onboarding-live--result"
+      data-result-empty-label="No test has been run yet."
+      data-result-title="Onboarding live"
+    >
+      <span class="route-status__empty">No test has been run yet.</span>
+    </div>
+  
+    </article>
+  
+    <article
+      class="probe-card"
+      id="route-onboarding-ready"
+      data-route-id="onboarding-ready"
+      data-route-domain="onboarding"
+      data-route-form-type="health"
+      data-route-visibility="internal-proxy"
+    >
+      <div class="probe-card__head">
+        <div>
+          <h4>Onboarding ready</h4>
+          <span class="chip chip--soft">internal</span>
+        </div>
+        <button
+          class="button ghost"
+          type="button"
+          data-scenario-id="onboarding-ready"
+          data-scenario-action="health-run"
+          data-route-id="onboarding-ready"
+        >
+          Run
+        </button>
+      </div>
+      <label class="field">
+        <span>Path</span>
+        <input id="onboarding-ready--path" type="text" value="/internal/onboarding/health/ready" />
+      </label>
+      <details class="inline-details">
+        <summary>Request options</summary>
+        <div class="field-grid field-grid--two">
+          <label class="field">
+            <span>Query</span>
+            <input id="onboarding-ready--query" type="text" placeholder="check=1" />
+          </label>
+          <label class="field">
+            <span>Headers</span>
+            <textarea id="onboarding-ready--headers" class="compact-textarea" spellcheck="false">{}</textarea>
+          </label>
+        </div>
+      </details>
+      
+    <div
+      class="route-status"
+      id="onboarding-ready--result"
+      data-result-empty-label="No test has been run yet."
+      data-result-title="Onboarding ready"
+    >
+      <span class="route-status__empty">No test has been run yet.</span>
+    </div>
+  
+    </article>
+  
+    <article
+      class="probe-card"
+      id="route-identity-live"
+      data-route-id="identity-live"
+      data-route-domain="identity"
+      data-route-form-type="health"
+      data-route-visibility="internal-proxy"
+    >
+      <div class="probe-card__head">
+        <div>
+          <h4>Identity live</h4>
+          <span class="chip chip--soft">internal</span>
+        </div>
+        <button
+          class="button ghost"
+          type="button"
+          data-scenario-id="identity-live"
+          data-scenario-action="health-run"
+          data-route-id="identity-live"
+        >
+          Run
+        </button>
+      </div>
+      <label class="field">
+        <span>Path</span>
+        <input id="identity-live--path" type="text" value="/internal/identity/actuator/health/liveness" />
+      </label>
+      <details class="inline-details">
+        <summary>Request options</summary>
+        <div class="field-grid field-grid--two">
+          <label class="field">
+            <span>Query</span>
+            <input id="identity-live--query" type="text" placeholder="check=1" />
+          </label>
+          <label class="field">
+            <span>Headers</span>
+            <textarea id="identity-live--headers" class="compact-textarea" spellcheck="false">{}</textarea>
+          </label>
+        </div>
+      </details>
+      
+    <div
+      class="route-status"
+      id="identity-live--result"
+      data-result-empty-label="No test has been run yet."
+      data-result-title="Identity live"
+    >
+      <span class="route-status__empty">No test has been run yet.</span>
+    </div>
+  
+    </article>
+  
+    <article
+      class="probe-card"
+      id="route-identity-ready"
+      data-route-id="identity-ready"
+      data-route-domain="identity"
+      data-route-form-type="health"
+      data-route-visibility="internal-proxy"
+    >
+      <div class="probe-card__head">
+        <div>
+          <h4>Identity ready</h4>
+          <span class="chip chip--soft">internal</span>
+        </div>
+        <button
+          class="button ghost"
+          type="button"
+          data-scenario-id="identity-ready"
+          data-scenario-action="health-run"
+          data-route-id="identity-ready"
+        >
+          Run
+        </button>
+      </div>
+      <label class="field">
+        <span>Path</span>
+        <input id="identity-ready--path" type="text" value="/internal/identity/actuator/health/readiness" />
+      </label>
+      <details class="inline-details">
+        <summary>Request options</summary>
+        <div class="field-grid field-grid--two">
+          <label class="field">
+            <span>Query</span>
+            <input id="identity-ready--query" type="text" placeholder="check=1" />
+          </label>
+          <label class="field">
+            <span>Headers</span>
+            <textarea id="identity-ready--headers" class="compact-textarea" spellcheck="false">{}</textarea>
+          </label>
+        </div>
+      </details>
+      
+    <div
+      class="route-status"
+      id="identity-ready--result"
+      data-result-empty-label="No test has been run yet."
+      data-result-title="Identity ready"
+    >
+      <span class="route-status__empty">No test has been run yet.</span>
+    </div>
+  
+    </article>
+  
+    <article
+      class="probe-card"
+      id="route-membership-live"
+      data-route-id="membership-live"
+      data-route-domain="membership"
+      data-route-form-type="health"
+      data-route-visibility="internal-proxy"
+    >
+      <div class="probe-card__head">
+        <div>
+          <h4>Membership live</h4>
+          <span class="chip chip--soft">internal</span>
+        </div>
+        <button
+          class="button ghost"
+          type="button"
+          data-scenario-id="membership-live"
+          data-scenario-action="health-run"
+          data-route-id="membership-live"
+        >
+          Run
+        </button>
+      </div>
+      <label class="field">
+        <span>Path</span>
+        <input id="membership-live--path" type="text" value="/internal/membership/actuator/health/liveness" />
+      </label>
+      <details class="inline-details">
+        <summary>Request options</summary>
+        <div class="field-grid field-grid--two">
+          <label class="field">
+            <span>Query</span>
+            <input id="membership-live--query" type="text" placeholder="check=1" />
+          </label>
+          <label class="field">
+            <span>Headers</span>
+            <textarea id="membership-live--headers" class="compact-textarea" spellcheck="false">{}</textarea>
+          </label>
+        </div>
+      </details>
+      
+    <div
+      class="route-status"
+      id="membership-live--result"
+      data-result-empty-label="No test has been run yet."
+      data-result-title="Membership live"
+    >
+      <span class="route-status__empty">No test has been run yet.</span>
+    </div>
+  
+    </article>
+  
+    <article
+      class="probe-card"
+      id="route-membership-ready"
+      data-route-id="membership-ready"
+      data-route-domain="membership"
+      data-route-form-type="health"
+      data-route-visibility="internal-proxy"
+    >
+      <div class="probe-card__head">
+        <div>
+          <h4>Membership ready</h4>
+          <span class="chip chip--soft">internal</span>
+        </div>
+        <button
+          class="button ghost"
+          type="button"
+          data-scenario-id="membership-ready"
+          data-scenario-action="health-run"
+          data-route-id="membership-ready"
+        >
+          Run
+        </button>
+      </div>
+      <label class="field">
+        <span>Path</span>
+        <input id="membership-ready--path" type="text" value="/internal/membership/actuator/health/readiness" />
+      </label>
+      <details class="inline-details">
+        <summary>Request options</summary>
+        <div class="field-grid field-grid--two">
+          <label class="field">
+            <span>Query</span>
+            <input id="membership-ready--query" type="text" placeholder="check=1" />
+          </label>
+          <label class="field">
+            <span>Headers</span>
+            <textarea id="membership-ready--headers" class="compact-textarea" spellcheck="false">{}</textarea>
+          </label>
+        </div>
+      </details>
+      
+    <div
+      class="route-status"
+      id="membership-ready--result"
+      data-result-empty-label="No test has been run yet."
+      data-result-title="Membership ready"
+    >
+      <span class="route-status__empty">No test has been run yet.</span>
+    </div>
+  
+    </article>
+  
+          </div>
+        </section>
+        
+              <section class="advanced-block">
+                
+    <article
+      class="probe-card probe-card--custom"
+      id="route-custom"
+      data-route-id="custom"
+      data-route-domain="utility"
+      data-route-form-type="custom"
+      data-route-visibility="utility"
+    >
+      <div class="probe-card__head">
+        <div>
+          <h4>Custom request</h4>
+          <p>Use any method, path, or body outside the main flow.</p>
+        </div>
+      </div>
+      <div class="field-grid field-grid--three">
+        <label class="field">
+          <span>Method</span>
+          <select id="custom--method">
+            <option>GET</option>
+            <option>POST</option>
+            <option>PUT</option>
+            <option>PATCH</option>
+            <option>DELETE</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Path or URL</span>
+          <input id="custom--path" type="text" value="custom" />
+        </label>
+        <label class="field">
+          <span>Query</span>
+          <input id="custom--query" type="text" placeholder="foo=bar&amp;limit=1" />
+        </label>
+      </div>
+      <label class="field">
+        <span>Headers</span>
+        <textarea id="custom--headers" class="compact-textarea" spellcheck="false">{
+  &quot;Accept&quot;: &quot;application/json&quot;
+}</textarea>
+      </label>
+      <label class="field">
+        <span>Body</span>
+        <textarea id="custom--body" class="compact-textarea" spellcheck="false" placeholder="Optional body"></textarea>
+      </label>
+      <div class="button-row">
+        <button class="button secondary" type="button" data-scenario-id="custom-request" data-scenario-action="custom-request" data-route-id="custom">Send</button>
+        <button class="button ghost" type="button" data-helper-action="clear-custom-body" data-route-id="custom">Clear body</button>
+      </div>
+      
+    <div
+      class="route-status"
+      id="custom--result"
+      data-result-empty-label="No test has been run yet."
+      data-result-title="Custom request"
+    >
+      <span class="route-status__empty">No test has been run yet.</span>
+    </div>
+  
+    </article>
+  
+              </section>
+            
+      </div>
+    </details>
+  
+      </main>
+
+      
+    <div class="drawer-backdrop" id="result-drawer-backdrop" hidden></div>
+    <aside
+      class="result-drawer"
+      id="result-drawer"
+      hidden
+      aria-hidden="true"
+      aria-labelledby="result-drawer-title"
+    >
+      <div class="result-drawer__panel">
+        <div class="result-drawer__header">
+          <div>
+            <span class="drawer-eyebrow">Latest result</span>
+            <h2 id="result-drawer-title">Detail</h2>
+          </div>
+          <div class="result-drawer__meta">
+            <span class="status-pill neutral" id="result-drawer-status">No test has been run yet.</span>
+            <span class="chip" id="result-drawer-duration">0 ms</span>
+          </div>
+        </div>
+        <div class="result-drawer__toolbar">
+          <button class="button secondary" type="button" data-result-action="copy-body" data-result-id="">Copy body</button>
+          <button class="button secondary" type="button" data-result-action="copy-full" data-result-id="">Copy full result</button>
+          <button class="button ghost" type="button" data-result-action="clear" data-result-id="">Clear</button>
+          <button class="button ghost" id="result-drawer-close" type="button">Close</button>
+        </div>
+        <div class="result-drawer__body">
+          <section class="drawer-block drawer-block--full">
+            <h3>URL</h3>
+            <pre id="result-drawer-url">No test has been run yet.</pre>
+          </section>
+          <section class="drawer-grid">
+            <article class="drawer-block">
+              <h3>Headers</h3>
+              <pre id="result-drawer-request-headers">No test has been run yet.</pre>
+            </article>
+            <article class="drawer-block">
+              <h3>Body</h3>
+              <pre id="result-drawer-request-body">No test has been run yet.</pre>
+            </article>
+            <article class="drawer-block">
+              <h3>Headers</h3>
+              <pre id="result-drawer-response-headers">No test has been run yet.</pre>
+            </article>
+            <article class="drawer-block">
+              <h3>Body</h3>
+              <pre id="result-drawer-response-body">No test has been run yet.</pre>
+            </article>
+          </section>
+          <section class="drawer-block drawer-block--full" id="result-drawer-live-log-shell" hidden>
+            <h3>Stream log</h3>
+            <pre id="result-drawer-live-log">No test has been run yet.</pre>
+          </section>
+        </div>
+      </div>
+    </aside>
+  
+      <div class="toast-stack" id="toast-stack" aria-live="polite" aria-atomic="true"></div>
+    </div>
+
+    <script id="manual-api-spec" type="application/json">{"version":"3.0.0","defaultBaseUrl":"http://localhost","outputFiles":{"en":"manual-api-tests.html","ptBR":"manual-api-tests.pt-BR.html"},"publicDocsRoutes":{"en":"/api/docs","ptBR":"/api/docs/pt-br"},"noParameterizedPaths":true,"noRequiredQueryParams":true,"noPublicCrud":true,"surfaceEndpoints":[{"id":"accounts-create","method":"POST","path":"/api/accounts","visibility":"public"},{"id":"events-stream","method":"GET","path":"/api/events","visibility":"public-protected"},{"id":"gateway-live","method":"GET","path":"/api/health/live","visibility":"public"},{"id":"gateway-ready","method":"GET","path":"/api/health/ready","visibility":"public"},{"id":"webhook-ingress","method":"POST","path":"/webhooks/payments","visibility":"public"},{"id":"webhook-live","method":"GET","path":"/webhooks/health/live","visibility":"public"},{"id":"webhook-ready","method":"GET","path":"/webhooks/health/ready","visibility":"public"},{"id":"payment-live","method":"GET","path":"/internal/payment/health/live","visibility":"internal-proxy"},{"id":"payment-ready","method":"GET","path":"/internal/payment/health/ready","visibility":"internal-proxy"},{"id":"onboarding-live","method":"GET","path":"/internal/onboarding/health/live","visibility":"internal-proxy"},{"id":"onboarding-ready","method":"GET","path":"/internal/onboarding/health/ready","visibility":"internal-proxy"},{"id":"identity-live","method":"GET","path":"/internal/identity/actuator/health/liveness","visibility":"internal-proxy"},{"id":"identity-ready","method":"GET","path":"/internal/identity/actuator/health/readiness","visibility":"internal-proxy"},{"id":"membership-live","method":"GET","path":"/internal/membership/actuator/health/liveness","visibility":"internal-proxy"},{"id":"membership-ready","method":"GET","path":"/internal/membership/actuator/health/readiness","visibility":"internal-proxy"}],"healthEndpoints":[{"id":"gateway-live","method":"GET","path":"/api/health/live"},{"id":"gateway-ready","method":"GET","path":"/api/health/ready"},{"id":"webhook-live","method":"GET","path":"/webhooks/health/live"},{"id":"webhook-ready","method":"GET","path":"/webhooks/health/ready"},{"id":"payment-live","method":"GET","path":"/internal/payment/health/live"},{"id":"payment-ready","method":"GET","path":"/internal/payment/health/ready"},{"id":"onboarding-live","method":"GET","path":"/internal/onboarding/health/live"},{"id":"onboarding-ready","method":"GET","path":"/internal/onboarding/health/ready"},{"id":"identity-live","method":"GET","path":"/internal/identity/actuator/health/liveness"},{"id":"identity-ready","method":"GET","path":"/internal/identity/actuator/health/readiness"},{"id":"membership-live","method":"GET","path":"/internal/membership/actuator/health/liveness"},{"id":"membership-ready","method":"GET","path":"/internal/membership/actuator/health/readiness"}],"scenarios":[{"id":"account-create","method":"POST","path":"/api/accounts"},{"id":"account-replay","method":"POST","path":"/api/accounts"},{"id":"account-conflict-prime","method":"POST","path":"/api/accounts"},{"id":"account-conflict-replay","method":"POST","path":"/api/accounts"},{"id":"account-missing-key","method":"POST","path":"/api/accounts"},{"id":"account-invalid-payload","method":"POST","path":"/api/accounts"},{"id":"account-unsupported-currency","method":"POST","path":"/api/accounts"},{"id":"events-probe","method":"GET","path":"/api/events"},{"id":"events-connect","method":"GET","path":"/api/events"},{"id":"webhook-confirmed","method":"POST","path":"/webhooks/payments"},{"id":"webhook-unsupported","method":"POST","path":"/webhooks/payments"},{"id":"webhook-invalid-signature","method":"POST","path":"/webhooks/payments"},{"id":"webhook-expired-signature","method":"POST","path":"/webhooks/payments"},{"id":"custom-request","method":"ANY","path":"custom"}]}</script>
+    <script id="manual-api-copy" type="application/json">{"localeCode":"en","fileName":"manual-api-tests.html","publicRoute":"/api/docs","routes":{"accounts":{"id":"accounts"},"events":{"id":"events"},"webhook":{"id":"webhook"},"gateway-live":{"id":"gateway-live"},"gateway-ready":{"id":"gateway-ready"},"webhook-live":{"id":"webhook-live"},"webhook-ready":{"id":"webhook-ready"},"payment-live":{"id":"payment-live"},"payment-ready":{"id":"payment-ready"},"onboarding-live":{"id":"onboarding-live"},"onboarding-ready":{"id":"onboarding-ready"},"identity-live":{"id":"identity-live"},"identity-ready":{"id":"identity-ready"},"membership-live":{"id":"membership-live"},"membership-ready":{"id":"membership-ready"},"custom":{"id":"custom"}}}</script>
+    <script id="manual-api-experience" type="application/json">{"context":{"description":"flow demo"},"runtime":{"stateCleared":"State cleared","playbookRunning":"Action running","playbookFinished":"Action finished","streamConnected":"Stream connected","streamDisconnected":"Stream disconnected","eventObserved":"Event received","requestCaptured":"Request completed","activityTypes":{"system":"System","playbook":"Action","request":"HTTP","stream":"SSE","webhook":"Webhook","health":"Health","clipboard":"Clipboard"}},"flowProgress":{"states":{"idle":"Waiting","live":"Live","done":"Done","warn":"Attention"}},"activity":{"labels":{"recent":"Recent"},"empty":"No activity yet."}}</script>
+    <script>
+      const manualApiSpec = JSON.parse(document.getElementById("manual-api-spec").textContent);
+      const uiCopy = JSON.parse(document.getElementById("manual-api-copy").textContent);
+      const uiExperience = JSON.parse(document.getElementById("manual-api-experience").textContent);
+const HEALTH_SERVICE_MAP = {
+  gateway: { live: "gateway-live", ready: "gateway-ready" },
+  webhook: { live: "webhook-live", ready: "webhook-ready" },
+  payment: { live: "payment-live", ready: "payment-ready" },
+  onboarding: { live: "onboarding-live", ready: "onboarding-ready" },
+  identity: { live: "identity-live", ready: "identity-ready" },
+  membership: { live: "membership-live", ready: "membership-ready" },
+};
+
+const PERSISTED_CONTROL_IDS = new Set([
+  "base-url",
+  "global-headers",
+  "include-credentials",
+  "bearer-token",
+  "jwt-user-id",
+  "jwt-secret",
+  "webhook--headerName",
+  "webhook--secret",
+]);
+
+const state = {
+  lastAccount: null,
+  lastEvent: null,
+  eventCount: 0,
+  activeEventStream: null,
+  activeResultId: null,
+  resultCache: new Map(),
+  lastNotification: null,
+  notificationStatus: "default",
+  notificationMessage: "",
+  notificationDedupe: new Map(),
+  healthPulse: new Map(),
+  activityFeed: [],
+  eventTypes: new Set(),
+  streamStatus: "idle",
+  lastWebhookAcceptedAt: null,
+  lastSweepAt: null,
+};
+
+const uiLabels = buildUiLabels(uiCopy.localeCode);
+
+document.addEventListener("DOMContentLoaded", async () => {
+  restorePersistedControls();
+  initializeBaseUrl();
+  initializeDefaults();
+  wireActions();
+  initializeResultDrawer();
+  wireDomainNavigation();
+  renderSharedState();
+  renderNotificationState();
+  renderStackPulse();
+  renderActivityFeed();
+  renderFlowProgress();
+  renderContextStrip();
+  await initializeNotifications();
+  await refreshWebhookSignature("webhook");
+  void runHealthSweep({ silent: true });
+  window.requestAnimationFrame(() => {
+    document.body.dataset.uiReady = "true";
+  });
+});
+
+function routeFieldId(routeId, field) {
+  return `${routeId}--${field}`;
+}
+
+function getField(routeId, field) {
+  return document.getElementById(routeFieldId(routeId, field));
+}
+
+function buildUiLabels(localeCode) {
+  if (localeCode === "pt-BR") {
+    return {
+      runtime: {
+        noStreamActivityYet: "Nenhuma atividade no stream ainda.",
+        openingSse: "Abrindo stream...",
+        sseConnected: "Stream conectado.",
+        sseClosedByServer: "O servidor encerrou o stream.",
+        sseDisconnected: "Stream desconectado.",
+        sseErrorPrefix: "Erro no stream:",
+        noPaymentReferenceAvailable: "Nenhuma referência de pagamento disponível.",
+        createAccountFirst: "Crie uma conta primeiro.",
+        failedToGenerateWebhookSignature: "Não foi possível gerar a assinatura.",
+        invalidJsonInput: "JSON inválido.",
+        cannotGenerateJwt: "Não foi possível gerar o JWT.",
+        provideUserIdFirst: "Informe primeiro um ID de usuário.",
+        jwtGenerationFailed: "Falha ao gerar o JWT.",
+        sseRequestFailed: "Falha ao abrir o stream SSE.",
+        clientError: "Erro do cliente",
+        empty: "(vazio)",
+        requestFailedSuffix: "falhou",
+        notApplicable: "n/a",
+        messageTypeFallback: "message",
+        stateNotSet: "não definido",
+        jsonObjectRequired: "O JSON precisa ser um objeto.",
+        clipboardUnavailable: "A área de transferência não está disponível neste contexto.",
+        missingIdempotencyKey: "Informe ou gere uma Idempotency-Key primeiro.",
+      },
+      notification: {
+        states: {
+          unsupported: "Indisponível",
+          blocked: "Bloqueado",
+          default: "Pendente",
+          granted: "Ativado",
+          error: "Erro",
+        },
+        messages: {
+          unsupported: "Este contexto não oferece suporte a notificações nativas.",
+          blocked: "As notificações estão bloqueadas. O aviso continua visível na página.",
+          default: "Ative as notificações se quiser alertas nativos.",
+          granted: "Alertas nativos ativados.",
+          error: "Não foi possível ativar as notificações.",
+          empty: "Nenhum alerta ainda.",
+          title: "Pagamento confirmado",
+          referenceLabel: "Referência",
+          amountLabel: "Valor",
+          statusLabel: "Status",
+          sourceLabel: "Origem",
+          sourceWebhook: "webhook confirmado",
+          sourceSse: "evento SSE",
+        },
+      },
+      health: {
+        title: "Health",
+        idle: "Não verificado",
+        checking: "Verificando",
+        up: "Saudável",
+        degraded: "Parcial",
+        down: "Indisponível",
+        running: "Verificando serviços...",
+        done: "Serviços verificados.",
+        partial: "Verificação concluída com degradação.",
+      },
+      statusStrip: {
+        credentialsOn: "Cookies ativos",
+        credentialsOff: "Cookies off",
+        authAnonymous: "Anônimo",
+        authBearer: "Bearer",
+        authHybrid: "Bearer + cookies",
+        notificationsDefault: "Pendente",
+        notificationsGranted: "Ativo",
+        notificationsBlocked: "Bloqueado",
+        notificationsUnsupported: "Indisponível",
+        notificationsError: "Erro",
+        streamIdle: "Parado",
+        streamOpening: "Conectando",
+        streamConnected: "Ao vivo",
+        streamClosed: "Fechado",
+        streamError: "Erro",
+      },
+      stream: {
+        idle: "Parado",
+      },
+      results: {
+        title: "Resultado",
+        open: "Ver detalhes",
+        noLiveLog: "Sem eventos no stream ainda.",
+      },
+      common: {
+        copied: "Copiado",
+        clipboard: "Clipboard",
+      },
+    };
+  }
+
+  return {
+    runtime: {
+      noStreamActivityYet: "No stream activity yet.",
+      openingSse: "Opening stream...",
+      sseConnected: "Stream connected.",
+      sseClosedByServer: "Stream closed by server.",
+      sseDisconnected: "Stream disconnected.",
+      sseErrorPrefix: "Stream error:",
+      noPaymentReferenceAvailable: "No payment reference available.",
+      createAccountFirst: "Create an account first.",
+      failedToGenerateWebhookSignature: "Failed to generate signature.",
+      invalidJsonInput: "Invalid JSON.",
+      cannotGenerateJwt: "Could not generate JWT.",
+      provideUserIdFirst: "Provide a user id first.",
+      jwtGenerationFailed: "JWT generation failed.",
+      sseRequestFailed: "SSE request failed.",
+      clientError: "Client error",
+      empty: "(empty)",
+      requestFailedSuffix: "failed",
+      notApplicable: "n/a",
+      messageTypeFallback: "message",
+      stateNotSet: "not set",
+      jsonObjectRequired: "JSON must be an object.",
+      clipboardUnavailable: "Clipboard unavailable in this browser context.",
+      missingIdempotencyKey: "Provide or generate an Idempotency-Key first.",
+    },
+    notification: {
+      states: {
+        unsupported: "Unsupported",
+        blocked: "Blocked",
+        default: "Pending",
+        granted: "Enabled",
+        error: "Error",
+      },
+      messages: {
+        unsupported: "Native notifications are not supported here.",
+        blocked: "Blocked. The page still shows the alert.",
+        default: "Enable notifications if you want native alerts.",
+        granted: "Native alerts enabled.",
+        error: "Could not enable notifications.",
+        empty: "No alerts yet.",
+        title: "Payment confirmed",
+        referenceLabel: "Reference",
+        amountLabel: "Amount",
+        statusLabel: "Status",
+        sourceLabel: "Source",
+        sourceWebhook: "confirmed webhook",
+        sourceSse: "SSE event",
+      },
+    },
+    health: {
+      title: "Health",
+      idle: "Not checked",
+      checking: "Checking",
+      up: "Healthy",
+      degraded: "Partial",
+      down: "Unavailable",
+      running: "Checking services...",
+      done: "Services checked.",
+      partial: "Sweep finished with degraded services.",
+    },
+    statusStrip: {
+      credentialsOn: "Cookies on",
+      credentialsOff: "Cookies off",
+      authAnonymous: "Anonymous",
+      authBearer: "Bearer",
+      authHybrid: "Bearer + cookies",
+      notificationsDefault: "Pending",
+      notificationsGranted: "Enabled",
+      notificationsBlocked: "Blocked",
+      notificationsUnsupported: "Unsupported",
+      notificationsError: "Error",
+      streamIdle: "Idle",
+      streamOpening: "Connecting",
+      streamConnected: "Live",
+      streamClosed: "Closed",
+      streamError: "Error",
+    },
+    stream: {
+      idle: "Idle",
+    },
+    results: {
+      title: "Result",
+      open: "View details",
+      noLiveLog: "No stream events yet.",
+    },
+    common: {
+      copied: "Copied",
+      clipboard: "Clipboard",
+    },
+  };
+}
+
+function initializeResultDrawer() {
+  const drawer = document.getElementById("result-drawer");
+  const backdrop = document.getElementById("result-drawer-backdrop");
+  const closeButton = document.getElementById("result-drawer-close");
+  if (!drawer || !backdrop || !closeButton) {
+    return;
+  }
+
+  backdrop.addEventListener("click", closeResultDrawer);
+  closeButton.addEventListener("click", closeResultDrawer);
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !drawer.hidden) {
+      closeResultDrawer();
+    }
+  });
+}
+
+function resultStatusClass(status) {
+  if (status >= 200 && status < 300) return "ok";
+  if (status >= 400 || status === 0) return "bad";
+  return "warn";
+}
+
+function getResultContainer(resultId) {
+  return document.getElementById(resultId);
+}
+
+function getResultEmptyLabel(resultId) {
+  const container = getResultContainer(resultId);
+  return container?.dataset.resultEmptyLabel || uiLabels.runtime.empty;
+}
+
+function getResultTitle(resultId) {
+  const container = getResultContainer(resultId);
+  return container?.dataset.resultTitle || uiLabels.results.title;
+}
+
+function renderEmptyResult(resultId) {
+  const container = getResultContainer(resultId);
+  if (!container) {
+    return;
+  }
+
+  const emptyLabel = getResultEmptyLabel(resultId);
+  container.innerHTML = `<span class="route-status__empty">${escapeHtml(emptyLabel)}</span>`;
+}
+
+function resultSummaryHint(result) {
+  try {
+    const parsed = new URL(result.url);
+    return `${result.method} ${parsed.pathname}${parsed.search}`;
+  } catch {
+    return `${result.method} ${result.url}`;
+  }
+}
+
+function buildCopyPayload(result) {
+  return JSON.stringify(
+    {
+      url: result.url,
+      method: result.method,
+      durationMs: result.durationMs,
+      status: result.status,
+      statusText: result.statusText,
+      requestHeaders: result.requestHeaders,
+      requestBody: tryParseJson(result.requestBody) || result.requestBody,
+      responseHeaders: result.responseHeaders,
+      responseBody: tryParseJson(result.rawBody) || result.rawBody,
+      liveLog: result.liveLog || "",
+    },
+    null,
+    2,
+  );
+}
+
+function renderResultSummary(resultId, result) {
+  const container = getResultContainer(resultId);
+  if (!container) {
+    return;
+  }
+
+  const statusClass = resultStatusClass(result.status);
+  container.innerHTML = `
+    <div class="result-summary">
+      <div class="result-summary__meta">
+        <span class="status-pill ${statusClass}">${escapeHtml(String(result.status))} ${escapeHtml(result.statusText || "")}</span>
+        <span class="chip">${escapeHtml(String(result.durationMs))} ms</span>
+      </div>
+      <div class="result-summary__actions">
+        <span class="result-summary__hint">${escapeHtml(resultSummaryHint(result))}</span>
+        <button class="button ghost" type="button" data-result-action="open" data-result-id="${escapeHtml(resultId)}">
+          ${escapeHtml(uiLabels.results.open)}
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function setDrawerResultId(resultId) {
+  const drawer = document.getElementById("result-drawer");
+  if (!drawer) {
+    return;
+  }
+
+  drawer
+    .querySelectorAll("[data-result-action]")
+    .forEach((button) => button.setAttribute("data-result-id", resultId || ""));
+}
+
+function syncResultDrawer(resultId) {
+  const drawer = document.getElementById("result-drawer");
+  const result = state.resultCache.get(resultId);
+  if (!drawer || !result) {
+    return;
+  }
+
+  const statusClass = resultStatusClass(result.status);
+  const requestBody = prettyMaybeJson(result.requestBody) || uiLabels.runtime.empty;
+  const responseBody = prettyMaybeJson(result.rawBody) || uiLabels.runtime.empty;
+  const requestHeaders = prettyJson(result.requestHeaders);
+  const responseHeaders = prettyJson(result.responseHeaders);
+  const liveLog = result.liveLog || "";
+
+  setDrawerResultId(resultId);
+  state.activeResultId = resultId;
+  setText("result-drawer-title", getResultTitle(resultId));
+  setText("result-drawer-duration", `${result.durationMs} ms`);
+  setText("result-drawer-url", result.url);
+  setText("result-drawer-request-headers", requestHeaders);
+  setText("result-drawer-request-body", requestBody);
+  setText("result-drawer-response-headers", responseHeaders);
+  setText("result-drawer-response-body", responseBody);
+
+  const status = document.getElementById("result-drawer-status");
+  if (status) {
+    status.textContent = `${result.status} ${result.statusText || ""}`.trim();
+    status.className = `status-pill ${statusClass}`;
+  }
+
+  const liveLogShell = document.getElementById("result-drawer-live-log-shell");
+  const liveLogTarget = document.getElementById("result-drawer-live-log");
+  if (liveLogShell && liveLogTarget) {
+    if (liveLog) {
+      liveLogShell.hidden = false;
+      liveLogTarget.textContent = liveLog;
+    } else {
+      liveLogShell.hidden = true;
+      liveLogTarget.textContent = uiLabels.results.noLiveLog;
+    }
+  }
+}
+
+function openResultDrawer(resultId) {
+  if (!state.resultCache.has(resultId)) {
+    return;
+  }
+
+  const drawer = document.getElementById("result-drawer");
+  const backdrop = document.getElementById("result-drawer-backdrop");
+  const closeButton = document.getElementById("result-drawer-close");
+  if (!drawer || !backdrop) {
+    return;
+  }
+
+  syncResultDrawer(resultId);
+  drawer.hidden = false;
+  backdrop.hidden = false;
+  drawer.setAttribute("aria-hidden", "false");
+  document.body.classList.add("drawer-open");
+  closeButton?.focus();
+}
+
+function closeResultDrawer() {
+  const drawer = document.getElementById("result-drawer");
+  const backdrop = document.getElementById("result-drawer-backdrop");
+  if (!drawer || !backdrop) {
+    return;
+  }
+
+  drawer.hidden = true;
+  backdrop.hidden = true;
+  drawer.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("drawer-open");
+  state.activeResultId = null;
+  setDrawerResultId("");
+}
+
+function renderStreamInlineState() {
+  const streamStatus = {
+    opening: uiLabels.statusStrip.streamOpening,
+    connected: uiLabels.statusStrip.streamConnected,
+    closed: uiLabels.statusStrip.streamClosed,
+    error: uiLabels.statusStrip.streamError,
+    idle: uiLabels.statusStrip.streamIdle,
+  }[state.streamStatus || "idle"];
+
+  setText("stream-inline-state", streamStatus);
+  setText("stream-inline-count", String(state.eventCount));
+  setText(
+    "stream-inline-last",
+    state.lastEvent?.type || uiLabels.runtime.stateNotSet,
+  );
+}
+
+function initializeBaseUrl() {
+  const baseUrl = document.getElementById("base-url");
+  if (!baseUrl) {
+    return;
+  }
+
+  const currentValue = String(baseUrl.value || "").trim();
+  const shouldHydrateFromWindow =
+    !currentValue || currentValue === manualApiSpec.defaultBaseUrl;
+
+  if (
+    shouldHydrateFromWindow &&
+    window.location.origin &&
+    window.location.origin !== "null" &&
+    shouldUseWindowOrigin(window.location)
+  ) {
+    baseUrl.value = window.location.origin;
+  }
+}
+
+function shouldUseWindowOrigin(location) {
+  if (!location || (location.protocol !== "http:" && location.protocol !== "https:")) {
+    return false;
+  }
+
+  const pathname = location.pathname || "";
+  const publishedRoutes = [
+    manualApiSpec.publicDocsRoutes.en,
+    `${manualApiSpec.publicDocsRoutes.en}/`,
+    manualApiSpec.publicDocsRoutes.ptBR,
+    `${manualApiSpec.publicDocsRoutes.ptBR}/`,
+    "/manual-api-tests.html",
+    "/manual-api-tests.pt-BR.html",
+  ];
+  if (publishedRoutes.includes(pathname)) {
+    return true;
+  }
+
+  const hostname = String(location.hostname || "").toLowerCase();
+  const isLoopback =
+    hostname === "localhost" ||
+    hostname === "127.0.0.1" ||
+    hostname === "::1" ||
+    hostname === "[::1]";
+  const port = String(location.port || "");
+  const isDefaultPort =
+    port === "" ||
+    (location.protocol === "http:" && port === "80") ||
+    (location.protocol === "https:" && port === "443");
+
+  if (isLoopback) {
+    return isDefaultPort;
+  }
+
+  return true;
+}
+
+function initializeDefaults() {
+  const accountKey = getField("accounts", "idempotencyKey");
+  if (accountKey && !accountKey.value.trim()) {
+    accountKey.value = crypto.randomUUID();
+  }
+
+  const webhookTimestamp = getField("webhook", "timestamp");
+  if (webhookTimestamp && !webhookTimestamp.value) {
+    webhookTimestamp.value = String(nowUnix());
+  }
+}
+
+function wireActions() {
+  document.addEventListener("click", async (event) => {
+    const button = event.target.closest("button");
+    if (!button) {
+      return;
+    }
+
+    if (button.dataset.resultAction) {
+      await handleResultAction(button);
+      return;
+    }
+
+    if (button.dataset.playbookAction) {
+      await handlePlaybookAction(button.dataset.playbookAction);
+      return;
+    }
+
+    if (button.dataset.scenarioAction) {
+      await handleScenarioAction(button.dataset.scenarioAction, button.dataset.routeId || "");
+      return;
+    }
+
+    if (button.dataset.helperAction) {
+      await handleHelperAction(button.dataset.helperAction, button.dataset.routeId || "");
+    }
+  });
+
+  document.getElementById("use-latest-user-id").addEventListener("click", () => {
+    if (state.lastAccount?.user?.id) {
+      document.getElementById("jwt-user-id").value = state.lastAccount.user.id;
+      savePersistedControls();
+      renderContextStrip();
+    }
+  });
+
+  document.getElementById("generate-jwt").addEventListener("click", generateLocalJwt);
+
+  document.getElementById("clear-token").addEventListener("click", () => {
+    document.getElementById("bearer-token").value = "";
+    savePersistedControls();
+    renderContextStrip();
+    renderFlowProgress();
+  });
+
+  document.getElementById("copy-state").addEventListener("click", async () => {
+    await copyText(
+      JSON.stringify(
+        {
+          lastAccount: state.lastAccount,
+          lastEvent: state.lastEvent,
+          eventCount: state.eventCount,
+          lastNotification: state.lastNotification,
+        },
+        null,
+        2,
+      ),
+    );
+  });
+
+  document.getElementById("clear-state").addEventListener("click", () => {
+    state.lastAccount = null;
+    state.lastEvent = null;
+    state.eventCount = 0;
+    state.lastWebhookAcceptedAt = null;
+    state.eventTypes.clear();
+    renderSharedState();
+    renderFlowProgress();
+    recordActivity(
+      uiExperience.runtime.activityTypes.system,
+      uiExperience.runtime.stateCleared,
+      uiExperience.context.description,
+      "warning",
+    );
+  });
+
+  document
+    .getElementById("request-notification-permission")
+    .addEventListener("click", () => requestNotificationPermission(true));
+
+  document.getElementById("clear-notification-banner").addEventListener("click", () => {
+    state.lastNotification = null;
+    renderNotificationState();
+  });
+
+  const stackSweep = document.getElementById("stack-sweep");
+  if (stackSweep) {
+    stackSweep.addEventListener("click", () => void runHealthSweep({ silent: false }));
+  }
+
+  document.addEventListener("input", (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLElement) || !target.id) {
+      return;
+    }
+
+    if (PERSISTED_CONTROL_IDS.has(target.id)) {
+      savePersistedControls();
+    }
+
+    if (
+      target.id === "base-url" ||
+      target.id === "bearer-token" ||
+      target.id === "jwt-user-id" ||
+      target.id === "include-credentials"
+    ) {
+      renderContextStrip();
+      renderFlowProgress();
+    }
+  });
+
+  document.addEventListener("change", (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLElement) || !target.id) {
+      return;
+    }
+
+    if (PERSISTED_CONTROL_IDS.has(target.id)) {
+      savePersistedControls();
+    }
+
+    if (target.id === "include-credentials") {
+      renderContextStrip();
+    }
+  });
+}
+
+function wireDomainNavigation() {
+  const links = [...document.querySelectorAll("[data-domain-link]")];
+  const sections = [...document.querySelectorAll("[data-domain-section]")];
+  if (!links.length || !sections.length) return;
+
+  const activate = (sectionId) => {
+    for (const link of links) {
+      const isActive = link.dataset.domainLink === sectionId;
+      link.classList.toggle("is-active", isActive);
+      if (isActive) {
+        link.setAttribute("aria-current", "true");
+      } else {
+        link.removeAttribute("aria-current");
+      }
+    }
+  };
+
+  activate(sections[0].id);
+
+  for (const link of links) {
+    link.addEventListener("click", () => {
+      activate(link.dataset.domainLink || "");
+    });
+  }
+
+  if (!("IntersectionObserver" in window)) {
+    return;
+  }
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      const visible = entries
+        .filter((entry) => entry.isIntersecting)
+        .sort((left, right) => right.intersectionRatio - left.intersectionRatio)[0];
+
+      if (visible) {
+        activate(visible.target.id);
+      }
+    },
+    {
+      rootMargin: "-18% 0px -58% 0px",
+      threshold: [0.18, 0.35, 0.6],
+    },
+  );
+
+  for (const section of sections) {
+    observer.observe(section);
+  }
+}
+
+async function handlePlaybookAction(action) {
+  recordActivity(
+    uiExperience.runtime.activityTypes.playbook,
+    uiExperience.runtime.playbookRunning,
+    action,
+    "neutral",
+  );
+
+  switch (action) {
+    case "playbook-account-create":
+      await runAccountScenario("accounts", "create");
+      break;
+    case "playbook-arm-stream":
+      if (!document.getElementById("jwt-user-id").value.trim() && state.lastAccount?.user?.id) {
+        document.getElementById("jwt-user-id").value = state.lastAccount.user.id;
+      }
+      await generateLocalJwt();
+      if (document.getElementById("bearer-token").value.trim()) {
+        await connectEvents("events");
+      }
+      break;
+    case "playbook-confirmed-webhook":
+      if (!state.lastAccount?.payment?.paymentReference) {
+        renderError(
+          routeFieldId("webhook", "result"),
+          uiLabels.runtime.noPaymentReferenceAvailable,
+          uiLabels.runtime.createAccountFirst,
+        );
+        break;
+      }
+      await loadLatestPayment("webhook");
+      await sendWebhookVariant("webhook", "confirmed");
+      break;
+    case "playbook-health-sweep":
+      await runHealthSweep({ silent: false });
+      break;
+    default:
+      break;
+  }
+
+  recordActivity(
+    uiExperience.runtime.activityTypes.playbook,
+    uiExperience.runtime.playbookFinished,
+    action,
+    "success",
+  );
+}
+
+async function handleHelperAction(action, routeId) {
+  switch (action) {
+    case "generate-account-key":
+      ensureAccountKey(routeId);
+      return;
+    case "disconnect-events":
+      disconnectEvents(routeId);
+      return;
+    case "clear-events-log":
+      clearEventsLog(routeId);
+      return;
+    case "load-latest-payment":
+      await loadLatestPayment(routeId);
+      return;
+    case "refresh-webhook-timestamp":
+      getField(routeId, "timestamp").value = String(nowUnix());
+      await refreshWebhookSignature(routeId);
+      return;
+    case "generate-webhook-signature":
+      await refreshWebhookSignature(routeId);
+      return;
+    case "clear-custom-body":
+      getField(routeId, "body").value = "";
+      return;
+    default:
+      return;
+  }
+}
+
+async function handleScenarioAction(action, routeId) {
+  switch (action) {
+    case "account-create":
+      await runAccountScenario(routeId, "create");
+      return;
+    case "account-replay":
+      await runAccountScenario(routeId, "replay");
+      return;
+    case "account-conflict-prime":
+      await runAccountScenario(routeId, "prime");
+      return;
+    case "account-conflict-replay":
+      await runAccountScenario(routeId, "conflicting-replay");
+      return;
+    case "account-missing-key":
+      await runAccountScenario(routeId, "missing-key");
+      return;
+    case "account-invalid-payload":
+      await runAccountScenario(routeId, "invalid-payload");
+      return;
+    case "account-unsupported-currency":
+      await runAccountScenario(routeId, "unsupported-currency");
+      return;
+    case "events-probe":
+      await probeEvents(routeId);
+      return;
+    case "events-connect":
+      await connectEvents(routeId);
+      return;
+    case "webhook-confirmed":
+      await sendWebhookVariant(routeId, "confirmed");
+      return;
+    case "webhook-unsupported":
+      await sendWebhookVariant(routeId, "unsupported");
+      return;
+    case "webhook-invalid-signature":
+      await sendWebhookVariant(routeId, "invalid-signature");
+      return;
+    case "webhook-expired-signature":
+      await sendWebhookVariant(routeId, "expired-signature");
+      return;
+    case "health-run":
+      await runHealthProbe(routeId);
+      return;
+    case "custom-request":
+      await runCustomRequest(routeId);
+      return;
+    default:
+      return;
+  }
+}
+
+function ensureAccountKey(routeId) {
+  const input = getField(routeId, "idempotencyKey");
+  if (input && !input.value.trim()) {
+    input.value = crypto.randomUUID();
+  }
+  return input?.value.trim() || "";
+}
+
+async function runAccountScenario(routeId, mode) {
+  const resultId = routeFieldId(routeId, "result");
+  const headers = safeJsonParseObject(getField(routeId, "headers").value, resultId);
+  if (!headers) return;
+
+  const currentKey = getField(routeId, "idempotencyKey").value.trim();
+  const idempotencyKey =
+    mode === "missing-key" ? "" : currentKey || ensureAccountKey(routeId);
+
+  if (mode !== "missing-key" && !idempotencyKey) {
+    renderError(resultId, uiLabels.runtime.clientError, uiLabels.runtime.missingIdempotencyKey);
+    return;
+  }
+
+  if (idempotencyKey) {
+    headers["Idempotency-Key"] = idempotencyKey;
+  }
+
+  const payloadText = buildAccountPayloadText(routeId, mode);
+  if (payloadText === null) return;
+
+  const result = await runSimpleRequest({
+    method: "POST",
+    path: getField(routeId, "path").value.trim(),
+    query: getField(routeId, "query").value.trim(),
+    explicitHeaders: headers,
+    bodyText: payloadText,
+    resultId,
+    accept: "application/json",
+    contentType: "application/json",
+  });
+
+  if (!result) return;
+  const parsedBody = tryParseJson(result.rawBody);
+  if (result.status >= 200 && result.status < 300 && parsedBody?.user && parsedBody?.payment) {
+    state.lastAccount = {
+      ...parsedBody,
+      idempotencyKey: idempotencyKey || null,
+    };
+    document.getElementById("jwt-user-id").value = parsedBody.user.id || "";
+    savePersistedControls();
+    renderSharedState();
+    renderFlowProgress();
+    renderContextStrip();
+  }
+}
+
+function buildAccountPayloadText(routeId, mode) {
+  const resultId = routeFieldId(routeId, "result");
+  const payloadObject = safeJsonParseObject(getField(routeId, "payload").value, resultId);
+  if (!payloadObject) return null;
+
+  switch (mode) {
+    case "invalid-payload":
+      return JSON.stringify(defaultValues.invalidPayload, null, 2);
+    case "unsupported-currency":
+      return JSON.stringify(buildUnsupportedCurrencyPayload(payloadObject), null, 2);
+    case "conflicting-replay":
+      return JSON.stringify(buildConflictingReplayPayload(payloadObject), null, 2);
+    default:
+      return JSON.stringify(payloadObject, null, 2);
+  }
+}
+
+function buildConflictingReplayPayload(basePayload) {
+  const amount = Number(basePayload.amount);
+  return {
+    ...basePayload,
+    name: basePayload.name ? `${basePayload.name} Replay` : "Replay Conflict",
+    amount: Number.isFinite(amount) ? amount + 1 : 50,
+  };
+}
+
+function buildUnsupportedCurrencyPayload(basePayload) {
+  const seed = uniqueDigits(11);
+  const emailToken = `${Date.now()}-${Math.floor(Math.random() * 100000)}`;
+  return {
+    ...basePayload,
+    email: `manual.currency.${emailToken}@example.com`,
+    name: basePayload.name ? `${basePayload.name} BTC` : "Currency Check BTC",
+    cellphone: `55${uniqueDigits(11)}`,
+    taxId: seed,
+    amount: Number(basePayload.amount) > 0 ? Number(basePayload.amount) : 49,
+    currency: "BTC",
+  };
+}
+
+async function probeEvents(routeId) {
+  const resultId = routeFieldId(routeId, "result");
+  const controller = new AbortController();
+  const headers = await buildHeaders({
+    explicitHeaders: getField(routeId, "headers").value,
+    accept: "text/event-stream",
+    contentType: null,
+    resultId,
+    omitAuthorization: true,
+  });
+  if (!headers) return;
+
+  const url = buildUrl(
+    getField(routeId, "path").value.trim(),
+    getField(routeId, "query").value.trim(),
+  );
+  const start = performance.now();
+
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      headers,
+      credentials: "omit",
+      signal: controller.signal,
+    });
+    const durationMs = Math.round(performance.now() - start);
+    renderResult(resultId, {
+      url,
+      method: "GET",
+      durationMs,
+      status: response.status,
+      statusText: response.statusText,
+      requestHeaders: Object.fromEntries(headers.entries()),
+      requestBody: "",
+      responseHeaders: headersToObject(response.headers),
+      rawBody: await response.text(),
+    });
+  } catch (error) {
+    renderError(resultId, uiLabels.runtime.sseRequestFailed, error);
+  } finally {
+    controller.abort();
+  }
+}
+
+async function connectEvents(routeId) {
+  disconnectEvents(routeId);
+  updateStreamStatus("opening");
+  appendStreamLog(routeId, uiLabels.runtime.openingSse);
+
+  const resultId = routeFieldId(routeId, "result");
+  const controller = new AbortController();
+  state.activeEventStream = { controller, routeId };
+
+  const headers = await buildHeaders({
+    explicitHeaders: getField(routeId, "headers").value,
+    accept: "text/event-stream",
+    contentType: null,
+    resultId,
+  });
+  if (!headers) {
+    state.activeEventStream = null;
+    updateStreamStatus("error");
+    return;
+  }
+
+  const url = buildUrl(
+    getField(routeId, "path").value.trim(),
+    getField(routeId, "query").value.trim(),
+  );
+  const start = performance.now();
+
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      headers,
+      credentials: getCredentialsMode(),
+      signal: controller.signal,
+    });
+
+    renderResult(resultId, {
+      url,
+      method: "GET",
+      durationMs: Math.round(performance.now() - start),
+      status: response.status,
+      statusText: response.statusText,
+      requestHeaders: Object.fromEntries(headers.entries()),
+      requestBody: "",
+      responseHeaders: headersToObject(response.headers),
+      rawBody: response.ok ? uiLabels.runtime.sseConnected : await response.text(),
+    });
+
+    if (!response.ok || !response.body) {
+      state.activeEventStream = null;
+      updateStreamStatus("error");
+      return;
+    }
+
+    updateStreamStatus("connected");
+    recordActivity(
+      uiExperience.runtime.activityTypes.stream,
+      uiExperience.runtime.streamConnected,
+      url,
+      "success",
+    );
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) {
+        appendStreamLog(routeId, uiLabels.runtime.sseClosedByServer);
+        updateStreamStatus("closed");
+        break;
+      }
+      buffer += decoder.decode(value, { stream: true });
+      buffer = buffer.replace(/\r\n/g, "\n");
+      buffer = consumeSseBuffer(buffer, (message) => {
+        state.lastEvent = message;
+        state.eventCount += 1;
+        state.eventTypes.add(message.type || uiLabels.runtime.messageTypeFallback);
+        renderSharedState();
+        renderFlowProgress();
+        appendStreamLog(
+          routeId,
+          `[${new Date().toISOString()}] ${message.type || uiLabels.runtime.messageTypeFallback}\n${message.formattedData}`,
+        );
+        recordActivity(
+          uiExperience.runtime.activityTypes.stream,
+          uiExperience.runtime.eventObserved,
+          `${message.type || uiLabels.runtime.messageTypeFallback}`,
+          "success",
+        );
+      });
+    }
+  } catch (error) {
+    if (error?.name === "AbortError") {
+      appendStreamLog(routeId, uiLabels.runtime.sseDisconnected);
+      updateStreamStatus("closed");
+      recordActivity(
+        uiExperience.runtime.activityTypes.stream,
+        uiExperience.runtime.streamDisconnected,
+        routeId,
+        "warning",
+      );
+    } else {
+      appendStreamLog(routeId, `${uiLabels.runtime.sseErrorPrefix} ${String(error)}`);
+      renderError(resultId, uiLabels.runtime.sseRequestFailed, error);
+      updateStreamStatus("error");
+    }
+  } finally {
+    state.activeEventStream = null;
+  }
+}
+
+function disconnectEvents(routeId) {
+  if (state.activeEventStream?.routeId === routeId) {
+    state.activeEventStream.controller.abort();
+    state.activeEventStream = null;
+  }
+  updateStreamStatus("closed");
+}
+
+function clearEventsLog(routeId) {
+  const log = getField(routeId, "log");
+  if (log) {
+    log.textContent = uiLabels.runtime.noStreamActivityYet;
+  }
+
+  const resultId = routeFieldId(routeId, "result");
+  const cached = state.resultCache.get(resultId);
+  if (cached) {
+    cached.liveLog = "";
+    if (state.activeResultId === resultId) {
+      syncResultDrawer(resultId);
+    }
+  }
+
+  renderStreamInlineState();
+}
+
+async function loadLatestPayment(routeId) {
+  const payment = state.lastAccount?.payment;
+  const resultId = routeFieldId(routeId, "result");
+  if (!payment) {
+    renderError(resultId, uiLabels.runtime.noPaymentReferenceAvailable, uiLabels.runtime.createAccountFirst);
+    return;
+  }
+
+  const payload = {
+    eventId: crypto.randomUUID(),
+    paymentReference: payment.paymentReference,
+    amount: payment.amount,
+    currency: payment.currency,
+    status: "CONFIRMED",
+    occurredAt: new Date().toISOString(),
+  };
+  getField(routeId, "payload").value = JSON.stringify(payload, null, 2);
+  getField(routeId, "timestamp").value = String(nowUnix());
+  await refreshWebhookSignature(routeId);
+}
+
+async function refreshWebhookSignature(routeId) {
+  const resultId = routeFieldId(routeId, "result");
+  try {
+    const secret = getField(routeId, "secret").value;
+    const timestamp = Number(getField(routeId, "timestamp").value);
+    const payloadText = normalizeJsonString(getField(routeId, "payload").value);
+    getField(routeId, "payload").value = prettyJson(payloadText);
+    const bodyText = getField(routeId, "payload").value;
+    const signature = await buildWebhookHeader(secret, timestamp, bodyText);
+    getField(routeId, "signature").value = signature;
+  } catch (error) {
+    renderError(resultId, uiLabels.runtime.failedToGenerateWebhookSignature, error);
+  }
+}
+
+async function sendWebhookVariant(routeId, mode) {
+  const resultId = routeFieldId(routeId, "result");
+  const path = getField(routeId, "path").value.trim();
+  const headerName = getField(routeId, "headerName").value.trim();
+  const secret = getField(routeId, "secret").value;
+  const timestampField = getField(routeId, "timestamp");
+  const payload = safeJsonParseObject(getField(routeId, "payload").value, resultId);
+  if (!payload) return;
+
+  payload.status = mode === "unsupported" ? "PENDING" : "CONFIRMED";
+
+  let timestamp = Number(timestampField.value);
+  if (!Number.isFinite(timestamp) || timestamp <= 0) {
+    timestamp = nowUnix();
+    timestampField.value = String(timestamp);
+  }
+  if (mode === "expired-signature") {
+    timestamp = nowUnix() - 900;
+    timestampField.value = String(timestamp);
+  }
+  if (!payload.eventId) {
+    payload.eventId = crypto.randomUUID();
+  }
+  payload.occurredAt = payload.occurredAt || new Date().toISOString();
+
+  const payloadText = JSON.stringify(payload, null, 2);
+  getField(routeId, "payload").value = payloadText;
+
+  let signature = await buildWebhookHeader(secret, timestamp, payloadText);
+  if (mode === "invalid-signature") {
+    signature = signature.replace(/.$/, signature.endsWith("0") ? "1" : "0");
+  }
+  getField(routeId, "signature").value = signature;
+
+  const result = await runSimpleRequest({
+    method: "POST",
+    path,
+    query: "",
+    explicitHeaders: {
+      [headerName]: signature,
+    },
+    bodyText: payloadText,
+    resultId,
+    accept: "application/json",
+    contentType: "application/json",
+  });
+
+  if (!result) return;
+  const responseBody = tryParseJson(result.rawBody);
+  if (mode === "confirmed" && result.status === 202 && responseBody?.status === "accepted") {
+    state.lastWebhookAcceptedAt = Date.now();
+    renderFlowProgress();
+    recordActivity(
+      uiExperience.runtime.activityTypes.webhook,
+      responseBody.status,
+      payload.paymentReference || payload.eventId,
+      "success",
+    );
+    emitPaymentNotification({
+      eventId: payload.eventId,
+      paymentReference: payload.paymentReference,
+      amount: payload.amount,
+      currency: payload.currency,
+      status: payload.status,
+      source: uiLabels.notification.messages.sourceWebhook,
+    });
+  }
+}
+
+async function runHealthProbe(routeId) {
+  await runSimpleRequest({
+    method: "GET",
+    path: getField(routeId, "path").value.trim(),
+    query: getField(routeId, "query").value.trim(),
+    explicitHeaders: getField(routeId, "headers").value,
+    bodyText: "",
+    resultId: routeFieldId(routeId, "result"),
+    accept: "application/json",
+    contentType: null,
+  });
+}
+
+async function runCustomRequest(routeId) {
+  await runSimpleRequest({
+    method: getField(routeId, "method").value,
+    path: getField(routeId, "path").value.trim(),
+    query: getField(routeId, "query").value.trim(),
+    explicitHeaders: getField(routeId, "headers").value,
+    bodyText: getField(routeId, "body").value,
+    resultId: routeFieldId(routeId, "result"),
+    accept: null,
+    contentType: null,
+  });
+}
+
+async function runSimpleRequest({
+  method,
+  path,
+  query,
+  explicitHeaders,
+  bodyText,
+  resultId,
+  accept,
+  contentType,
+  includeCredentials,
+  omitAuthorization,
+}) {
+  const headers = await buildHeaders({
+    explicitHeaders,
+    accept,
+    contentType,
+    resultId,
+    omitAuthorization,
+  });
+  if (!headers) return null;
+
+  const url = buildUrl(path, query);
+  const requestBody = method === "GET" || method === "DELETE" ? "" : bodyText;
+  const start = performance.now();
+
+  try {
+    const response = await fetch(url, {
+      method,
+      headers,
+      body: requestBody || undefined,
+      credentials: includeCredentials ?? getCredentialsMode(),
+    });
+
+    const rawBody = await response.text();
+    const result = {
+      url,
+      method,
+      durationMs: Math.round(performance.now() - start),
+      status: response.status,
+      statusText: response.statusText,
+      requestHeaders: Object.fromEntries(headers.entries()),
+      requestBody,
+      responseHeaders: headersToObject(response.headers),
+      rawBody,
+    };
+
+    renderResult(resultId, result);
+    return result;
+  } catch (error) {
+    renderError(resultId, `${method} ${path} ${uiLabels.runtime.requestFailedSuffix}`, error);
+    return null;
+  }
+}
+
+async function buildHeaders({
+  explicitHeaders,
+  accept,
+  contentType,
+  resultId,
+  omitAuthorization = false,
+}) {
+  const merged = new Headers();
+
+  if (accept) {
+    merged.set("Accept", accept);
+  }
+  if (contentType) {
+    merged.set("Content-Type", contentType);
+  }
+
+  const globalHeaders = safeJsonParseObject(
+    document.getElementById("global-headers").value,
+    resultId,
+    true,
+  );
+  if (globalHeaders === null) return null;
+  for (const [key, value] of Object.entries(globalHeaders)) {
+    if (value !== undefined && value !== null && value !== "") {
+      merged.set(key, String(value));
+    }
+  }
+
+  const requestHeaders = safeJsonParseObject(explicitHeaders || "{}", resultId, true);
+  if (requestHeaders === null) return null;
+  for (const [key, value] of Object.entries(requestHeaders)) {
+    if (value !== undefined && value !== null && value !== "") {
+      merged.set(key, String(value));
+    }
+  }
+
+  const bearerToken = document.getElementById("bearer-token").value.trim();
+  if (!omitAuthorization && bearerToken && !merged.has("Authorization")) {
+    merged.set("Authorization", `Bearer ${bearerToken}`);
+  }
+
+  return merged;
+}
+
+function buildUrl(path, query) {
+  const baseUrl = document.getElementById("base-url").value.trim();
+  const target =
+    path.startsWith("http://") || path.startsWith("https://")
+      ? new URL(path)
+      : new URL(path, ensureTrailingSlash(baseUrl));
+  if (query) {
+    target.search = query.startsWith("?") ? query : `?${query}`;
+  }
+  return target.toString();
+}
+
+function ensureTrailingSlash(value) {
+  return value.endsWith("/") ? value : `${value}/`;
+}
+
+function getCredentialsMode() {
+  return document.getElementById("include-credentials").checked ? "include" : "omit";
+}
+
+function renderResult(resultId, result) {
+  if (resultId === routeFieldId("events", "result")) {
+    const log = getField("events", "log")?.textContent || "";
+    result.liveLog = log === uiLabels.runtime.noStreamActivityYet ? "" : log;
+  }
+
+  state.resultCache.set(resultId, result);
+  renderResultSummary(resultId, result);
+  openResultDrawer(resultId);
+
+  recordActivity(
+    uiExperience.runtime.activityTypes.request,
+    uiExperience.runtime.requestCaptured,
+    `${result.method} ${trimDisplayUrl(result.url)} -> ${result.status}`,
+    resultStatusClass(result.status) === "ok"
+      ? "success"
+      : resultStatusClass(result.status) === "warn"
+        ? "warning"
+        : "danger",
+  );
+}
+
+function renderError(resultId, message, error) {
+  renderResult(resultId, {
+    url: uiLabels.runtime.notApplicable,
+    method: uiLabels.runtime.notApplicable,
+    durationMs: 0,
+    status: 0,
+    statusText: uiLabels.runtime.clientError,
+    requestHeaders: {},
+    requestBody: "",
+    responseHeaders: {},
+    rawBody: `${message}\n\n${String(error)}`,
+  });
+}
+
+async function handleResultAction(button) {
+  const { resultAction, resultId } = button.dataset;
+  if (!resultId) return;
+
+  if (resultAction === "open") {
+    openResultDrawer(resultId);
+    return;
+  }
+
+  if (resultAction === "clear") {
+    state.resultCache.delete(resultId);
+    renderEmptyResult(resultId);
+    if (state.activeResultId === resultId) {
+      closeResultDrawer();
+    }
+    return;
+  }
+
+  const cached = state.resultCache.get(resultId);
+  if (!cached) return;
+
+  if (resultAction === "copy-body") {
+    await copyText(prettyMaybeJson(cached.rawBody));
+    return;
+  }
+
+  if (resultAction === "copy-full") {
+    await copyText(buildCopyPayload(cached));
+  }
+}
+
+function renderSharedState() {
+  const account = state.lastAccount;
+  setText("state-user-id", account?.user?.id || uiLabels.runtime.stateNotSet);
+  setText("state-payment-id", account?.payment?.id || uiLabels.runtime.stateNotSet);
+  setText(
+    "state-payment-reference",
+    account?.payment?.paymentReference || uiLabels.runtime.stateNotSet,
+  );
+  setText("state-idempotency-key", account?.idempotencyKey || uiLabels.runtime.stateNotSet);
+  setText(
+    "state-correlation-id",
+    account?.meta?.correlationId || uiLabels.runtime.stateNotSet,
+  );
+  setText(
+    "state-last-event",
+    state.lastEvent
+      ? `${state.lastEvent.type || uiLabels.runtime.messageTypeFallback} (#${state.eventCount})`
+      : uiLabels.runtime.stateNotSet,
+  );
+  renderStreamInlineState();
+}
+
+function setText(id, value) {
+  const target = document.getElementById(id);
+  if (target) {
+    target.textContent = value;
+  }
+}
+
+function appendStreamLog(routeId, message) {
+  const log = getField(routeId, "log");
+  if (!log) return;
+  if (log.textContent === uiLabels.runtime.noStreamActivityYet) {
+    log.textContent = message;
+  } else {
+    log.textContent += `\n\n${message}`;
+  }
+  log.scrollTop = log.scrollHeight;
+
+  const resultId = routeFieldId(routeId, "result");
+  const cached = state.resultCache.get(resultId);
+  if (cached) {
+    cached.liveLog = log.textContent;
+    if (state.activeResultId === resultId) {
+      syncResultDrawer(resultId);
+    }
+  }
+
+  renderStreamInlineState();
+}
+
+function consumeSseBuffer(buffer, onEvent) {
+  let boundaryIndex = buffer.indexOf("\n\n");
+  while (boundaryIndex !== -1) {
+    const rawChunk = buffer.slice(0, boundaryIndex).replace(/\r/g, "");
+    buffer = buffer.slice(boundaryIndex + 2);
+    boundaryIndex = buffer.indexOf("\n\n");
+
+    if (!rawChunk.trim()) continue;
+
+    const event = {
+      id: "",
+      type: uiLabels.runtime.messageTypeFallback,
+      dataLines: [],
+    };
+
+    for (const line of rawChunk.split("\n")) {
+      if (!line || line.startsWith(":")) continue;
+      const separator = line.indexOf(":");
+      const field = separator === -1 ? line : line.slice(0, separator);
+      let value = separator === -1 ? "" : line.slice(separator + 1);
+      if (value.startsWith(" ")) value = value.slice(1);
+
+      if (field === "id") event.id = value;
+      if (field === "event") event.type = value;
+      if (field === "data") event.dataLines.push(value);
+    }
+
+    const rawData = event.dataLines.join("\n");
+    const parsedData = tryParseJson(rawData);
+    onEvent({
+      id: event.id,
+      type: event.type,
+      rawData,
+      parsedData,
+      formattedData: parsedData ? JSON.stringify(parsedData, null, 2) : rawData,
+    });
+  }
+
+  return buffer;
+}
+
+async function generateLocalJwt() {
+  const userId = document.getElementById("jwt-user-id").value.trim();
+  const secret = document.getElementById("jwt-secret").value;
+  if (!userId) {
+    renderError("events--result", uiLabels.runtime.cannotGenerateJwt, uiLabels.runtime.provideUserIdFirst);
+    return;
+  }
+
+  try {
+    const token = await signJwtHs256(
+      {
+        sub: userId,
+        exp: Math.floor(Date.now() / 1000) + 3600,
+      },
+      secret,
+    );
+    document.getElementById("bearer-token").value = token;
+    savePersistedControls();
+    renderContextStrip();
+    renderFlowProgress();
+  } catch (error) {
+    renderError("events--result", uiLabels.runtime.jwtGenerationFailed, error);
+  }
+}
+
+async function initializeNotifications() {
+  await requestNotificationPermission(false);
+}
+
+async function requestNotificationPermission(showToastOnError) {
+  if (!isNotificationAvailable()) {
+    state.notificationStatus = "unsupported";
+    state.notificationMessage = uiLabels.notification.messages.unsupported;
+    renderNotificationState();
+    return;
+  }
+
+  try {
+    if (Notification.permission === "default") {
+      const permission = await Notification.requestPermission();
+      state.notificationStatus = mapNotificationPermission(permission);
+    } else {
+      state.notificationStatus = mapNotificationPermission(Notification.permission);
+    }
+  } catch (error) {
+    state.notificationStatus = "error";
+    state.notificationMessage = uiLabels.notification.messages.error;
+    renderNotificationState();
+    if (showToastOnError) {
+      showToast(uiLabels.notification.states.error, String(error), "warning");
+    }
+    return;
+  }
+
+  state.notificationMessage = notificationStatusMessage(state.notificationStatus);
+  renderNotificationState();
+}
+
+function isNotificationAvailable() {
+  if (!("Notification" in window)) return false;
+  if (window.isSecureContext) return true;
+
+  const hostname = String(window.location.hostname || "").toLowerCase();
+  return (
+    hostname === "localhost" ||
+    hostname === "127.0.0.1" ||
+    hostname === "::1" ||
+    hostname === "[::1]"
+  );
+}
+
+function mapNotificationPermission(permission) {
+  if (permission === "granted") return "granted";
+  if (permission === "denied") return "blocked";
+  return "default";
+}
+
+function notificationStatusMessage(status) {
+  switch (status) {
+    case "granted":
+      return uiLabels.notification.messages.granted;
+    case "blocked":
+      return uiLabels.notification.messages.blocked;
+    case "unsupported":
+      return uiLabels.notification.messages.unsupported;
+    case "error":
+      return uiLabels.notification.messages.error;
+    default:
+      return uiLabels.notification.messages.default;
+  }
+}
+
+function renderNotificationState() {
+  const pill = document.getElementById("notification-status-pill");
+  const text = document.getElementById("notification-status-text");
+  const lastMessage = document.getElementById("notification-last-message");
+  const banner = document.getElementById("notification-fallback-banner");
+
+  const effectiveStatus = state.notificationStatus || "default";
+  pill.textContent =
+    uiLabels.notification.states[effectiveStatus] || uiLabels.notification.states.default;
+  pill.className = `status-pill ${notificationClassForStatus(effectiveStatus)}`;
+  text.textContent = state.notificationMessage || notificationStatusMessage(effectiveStatus);
+  lastMessage.textContent = state.lastNotification
+    ? formatNotificationSummary(state.lastNotification)
+    : uiLabels.notification.messages.empty;
+
+  banner.className = `alert-banner ${notificationBannerClass(effectiveStatus)}`;
+  banner.textContent =
+    state.lastNotification && effectiveStatus !== "granted"
+      ? formatNotificationSummary(state.lastNotification)
+      : notificationStatusMessage(effectiveStatus);
+
+  renderContextStrip();
+}
+
+function notificationClassForStatus(status) {
+  switch (status) {
+    case "granted":
+      return "ok";
+    case "blocked":
+    case "error":
+      return "bad";
+    case "unsupported":
+      return "warn";
+    default:
+      return "neutral";
+  }
+}
+
+function notificationBannerClass(status) {
+  switch (status) {
+    case "granted":
+      return "success";
+    case "blocked":
+    case "error":
+      return "danger";
+    default:
+      return "info";
+  }
+}
+
+function emitPaymentNotification(details) {
+  const dedupeKey = `${details.paymentReference}:${details.status}`;
+  const lastAt = state.notificationDedupe.get(dedupeKey);
+  if (lastAt && Date.now() - lastAt < 2500) {
+    return;
+  }
+  state.notificationDedupe.set(dedupeKey, Date.now());
+
+  const amountText = formatCurrency(details.amount, details.currency);
+  const summary = [
+    `${uiLabels.notification.messages.referenceLabel}: ${details.paymentReference || "-"}`,
+    `${uiLabels.notification.messages.amountLabel}: ${amountText}`,
+    `${uiLabels.notification.messages.statusLabel}: ${details.status || "-"}`,
+    `${uiLabels.notification.messages.sourceLabel}: ${details.source || uiLabels.notification.messages.sourceWebhook}`,
+  ].join(" | ");
+
+  state.lastNotification = {
+    title: uiLabels.notification.messages.title,
+    summary,
+    at: new Date().toISOString(),
+  };
+  renderNotificationState();
+  showToast(
+    uiLabels.notification.messages.title,
+    summary,
+    state.notificationStatus === "granted" ? "success" : "warning",
+  );
+
+  if (state.notificationStatus === "granted" && "Notification" in window) {
+    try {
+      const notification = new Notification(uiLabels.notification.messages.title, {
+        body: summary,
+        tag: `payment-confirmed:${details.paymentReference || details.eventId || crypto.randomUUID()}`,
+      });
+      setTimeout(() => notification.close(), 6000);
+    } catch {
+      state.notificationStatus = "error";
+      state.notificationMessage = uiLabels.notification.messages.error;
+      renderNotificationState();
+    }
+  }
+}
+
+function formatNotificationSummary(notification) {
+  return `[${notification.at}] ${notification.title} | ${notification.summary}`;
+}
+
+function showToast(title, body, tone) {
+  const stack = document.getElementById("toast-stack");
+  if (!stack) return;
+
+  const toast = document.createElement("article");
+  toast.className = `toast ${tone}`;
+  toast.innerHTML = `
+    <h4>${escapeHtml(title)}</h4>
+    <p>${escapeHtml(body)}</p>
+  `;
+  stack.appendChild(toast);
+
+  setTimeout(() => {
+    toast.classList.add("fade-out");
+    setTimeout(() => toast.remove(), 220);
+  }, 5200);
+}
+
+function formatCurrency(amount, currency) {
+  try {
+    return new Intl.NumberFormat(uiCopy.localeCode, {
+      style: "currency",
+      currency: String(currency || "USD").toUpperCase(),
+    }).format(Number(amount));
+  } catch {
+    return `${amount} ${currency}`.trim();
+  }
+}
+
+async function signJwtHs256(payload, secret) {
+  const header = { alg: "HS256", typ: "JWT" };
+  const encodedHeader = base64UrlEncode(JSON.stringify(header));
+  const encodedPayload = base64UrlEncode(JSON.stringify(payload));
+  const unsignedToken = `${encodedHeader}.${encodedPayload}`;
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  const signatureBuffer = await crypto.subtle.sign(
+    "HMAC",
+    key,
+    new TextEncoder().encode(unsignedToken),
+  );
+  const signature = base64UrlEncodeBytes(new Uint8Array(signatureBuffer));
+  return `${unsignedToken}.${signature}`;
+}
+
+async function buildWebhookHeader(secret, timestamp, bodyText) {
+  const payload = `${timestamp}.${bodyText}`;
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  const signatureBuffer = await crypto.subtle.sign(
+    "HMAC",
+    key,
+    new TextEncoder().encode(payload),
+  );
+  const signatureHex = Array.from(new Uint8Array(signatureBuffer))
+    .map((value) => value.toString(16).padStart(2, "0"))
+    .join("");
+  return `t=${timestamp},v1=${signatureHex}`;
+}
+
+function normalizeJsonString(value) {
+  const parsed = JSON.parse(value);
+  return JSON.stringify(parsed);
+}
+
+function prettyMaybeJson(value) {
+  if (!value) return "";
+  const parsed = tryParseJson(value);
+  if (parsed !== null) {
+    return JSON.stringify(parsed, null, 2);
+  }
+  return String(value);
+}
+
+function prettyJson(value) {
+  if (typeof value === "string") {
+    const parsed = tryParseJson(value);
+    return parsed !== null ? JSON.stringify(parsed, null, 2) : value;
+  }
+  return JSON.stringify(value, null, 2);
+}
+
+function tryParseJson(value) {
+  if (value === "" || value === null || value === undefined) return null;
+  if (typeof value !== "string") return value;
+  try {
+    return JSON.parse(value);
+  } catch {
+    return null;
+  }
+}
+
+function safeJsonParseObject(raw, resultId, renderOnError = true) {
+  try {
+    if (raw && typeof raw === "object" && !Array.isArray(raw)) {
+      return raw;
+    }
+    if (!raw || !String(raw).trim()) return {};
+    const parsed = JSON.parse(raw);
+    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+      return parsed;
+    }
+    throw new Error(uiLabels.runtime.jsonObjectRequired);
+  } catch (error) {
+    if (renderOnError) {
+      renderError(resultId, uiLabels.runtime.invalidJsonInput, error);
+    }
+    return null;
+  }
+}
+
+function headersToObject(headers) {
+  const result = {};
+  headers.forEach((value, key) => {
+    result[key] = value;
+  });
+  return result;
+}
+
+async function runHealthSweep({ silent }) {
+  const serviceIds = Object.keys(HEALTH_SERVICE_MAP);
+  for (const serviceId of serviceIds) {
+    state.healthPulse.set(serviceId, {
+      status: "checking",
+      detail: uiLabels.health.checking,
+    });
+  }
+  renderStackPulse();
+
+  if (!silent) {
+    recordActivity(
+      uiExperience.runtime.activityTypes.health,
+      uiLabels.health.running,
+      trimDisplayUrl(document.getElementById("base-url").value),
+      "warning",
+    );
+  }
+
+  const endpointMap = new Map(manualApiSpec.healthEndpoints.map((endpoint) => [endpoint.id, endpoint]));
+  let degradedCount = 0;
+
+  for (const [serviceId, routeIds] of Object.entries(HEALTH_SERVICE_MAP)) {
+    const live = await fetchHealthEndpoint(endpointMap.get(routeIds.live));
+    const ready = await fetchHealthEndpoint(endpointMap.get(routeIds.ready));
+    const status = evaluateHealthStatus(live, ready);
+    if (status !== "up") {
+      degradedCount += 1;
+    }
+    state.healthPulse.set(serviceId, {
+      status,
+      detail: formatHealthDetail(live, ready),
+      live,
+      ready,
+    });
+  }
+
+  state.lastSweepAt = Date.now();
+  renderStackPulse();
+  renderFlowProgress();
+
+  if (!silent) {
+    const tone = degradedCount === 0 ? "success" : "warning";
+    const message = degradedCount === 0 ? uiLabels.health.done : uiLabels.health.partial;
+    showToast(uiLabels.health.title, message, tone);
+    recordActivity(
+      uiExperience.runtime.activityTypes.health,
+      message,
+      `${serviceIds.length} ${uiLabels.health.title.toLowerCase()}`,
+      tone,
+    );
+  }
+}
+
+async function fetchHealthEndpoint(endpoint) {
+  if (!endpoint) {
+    return { ok: false, status: 0, statusText: "missing", durationMs: 0 };
+  }
+
+  const url = buildUrl(endpoint.path, "");
+  const controller = new AbortController();
+  const start = performance.now();
+  const timeout = setTimeout(() => controller.abort(), 4500);
+
+  try {
+    const response = await fetch(url, {
+      method: endpoint.method,
+      headers: { Accept: "application/json" },
+      credentials: getCredentialsMode(),
+      signal: controller.signal,
+    });
+    clearTimeout(timeout);
+    return {
+      ok: response.ok,
+      status: response.status,
+      statusText: response.statusText,
+      durationMs: Math.round(performance.now() - start),
+    };
+  } catch (error) {
+    clearTimeout(timeout);
+    return {
+      ok: false,
+      status: 0,
+      statusText: error?.name === "AbortError" ? "timeout" : "error",
+      durationMs: Math.round(performance.now() - start),
+    };
+  }
+}
+
+function evaluateHealthStatus(live, ready) {
+  if (live.ok && ready.ok) return "up";
+  if (live.ok || ready.ok) return "degraded";
+  return "down";
+}
+
+function formatHealthDetail(live, ready) {
+  return `live ${live.status || 0} / ready ${ready.status || 0}`;
+}
+
+function renderStackPulse() {
+  const serviceIds = Object.keys(HEALTH_SERVICE_MAP);
+  for (const serviceId of serviceIds) {
+    const pulse = state.healthPulse.get(serviceId) || {
+      status: "idle",
+      detail: uiLabels.health.idle,
+    };
+    const statusElement = document.getElementById(`health-${serviceId}-status`);
+    const detailElement = document.getElementById(`health-${serviceId}-detail`);
+    if (statusElement) {
+      statusElement.textContent = uiLabels.health[pulse.status] || uiLabels.health.idle;
+      statusElement.className = `status-pill ${healthStatusClass(pulse.status)}`;
+    }
+    if (detailElement) {
+      detailElement.textContent = pulse.detail;
+    }
+  }
+
+  setText(
+    "stack-sweep-timestamp",
+    state.lastSweepAt
+      ? new Date(state.lastSweepAt).toLocaleTimeString(uiCopy.localeCode, {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        })
+      : uiLabels.health.idle,
+  );
+}
+
+function healthStatusClass(status) {
+  switch (status) {
+    case "up":
+      return "ok";
+    case "degraded":
+      return "warn";
+    case "down":
+      return "bad";
+    default:
+      return "neutral";
+  }
+}
+
+function renderFlowProgress() {
+  const healthGateway = state.healthPulse.get("gateway")?.status || "idle";
+  const hasToken = Boolean(document.getElementById("bearer-token").value.trim());
+  const hasCookieFlow = Boolean(
+    document.getElementById("include-credentials").checked && state.lastAccount,
+  );
+  const hasPaymentEvent = state.eventTypes.has("payment.status-updated");
+  const hasPremiumEvent = state.eventTypes.has("user.premium-updated");
+
+  const steps = {
+    edge:
+      healthGateway === "up"
+        ? "done"
+        : healthGateway === "checking"
+          ? "live"
+          : healthGateway === "down"
+            ? "warn"
+            : "idle",
+    account: state.lastAccount ? "done" : "idle",
+    auth: hasToken || hasCookieFlow ? "done" : state.lastAccount ? "warn" : "idle",
+    stream:
+      state.streamStatus === "connected"
+        ? "done"
+        : state.streamStatus === "opening"
+          ? "live"
+          : state.streamStatus === "error"
+            ? "warn"
+            : "idle",
+    webhook: state.lastWebhookAcceptedAt ? "done" : state.lastAccount ? "warn" : "idle",
+    payment:
+      hasPaymentEvent
+        ? "done"
+        : state.lastWebhookAcceptedAt
+          ? "live"
+          : "idle",
+    premium:
+      hasPremiumEvent
+        ? "done"
+        : hasPaymentEvent
+          ? "live"
+          : "idle",
+  };
+
+  for (const [stepId, status] of Object.entries(steps)) {
+    const pill = document.getElementById(`flow-step-${stepId}-status`);
+    if (!pill) continue;
+    pill.textContent = uiExperience.flowProgress.states[status];
+    pill.className = `status-pill ${progressStatusClass(status)}`;
+  }
+}
+
+function progressStatusClass(status) {
+  switch (status) {
+    case "done":
+      return "ok";
+    case "live":
+      return "warn";
+    case "warn":
+      return "bad";
+    default:
+      return "neutral";
+  }
+}
+
+function renderContextStrip() {
+  const baseUrl = document.getElementById("base-url").value.trim();
+  const includeCredentials = document.getElementById("include-credentials").checked;
+  const bearerToken = document.getElementById("bearer-token").value.trim();
+
+  setText("context-base-url", trimDisplayUrl(baseUrl || manualApiSpec.defaultBaseUrl));
+  setText(
+    "context-credentials",
+    includeCredentials ? uiLabels.statusStrip.credentialsOn : uiLabels.statusStrip.credentialsOff,
+  );
+
+  setText(
+    "context-auth",
+    bearerToken && includeCredentials
+      ? uiLabels.statusStrip.authHybrid
+      : bearerToken
+        ? uiLabels.statusStrip.authBearer
+        : uiLabels.statusStrip.authAnonymous,
+  );
+
+  const notificationKey = {
+    granted: "notificationsGranted",
+    blocked: "notificationsBlocked",
+    unsupported: "notificationsUnsupported",
+    error: "notificationsError",
+    default: "notificationsDefault",
+  }[state.notificationStatus || "default"];
+  setText("context-notifications", uiLabels.statusStrip[notificationKey]);
+
+  const streamKey = {
+    opening: "streamOpening",
+    connected: "streamConnected",
+    closed: "streamClosed",
+    error: "streamError",
+    idle: "streamIdle",
+  }[state.streamStatus || "idle"];
+  setText("context-stream", uiLabels.statusStrip[streamKey]);
+}
+
+function updateStreamStatus(nextStatus) {
+  state.streamStatus = nextStatus;
+  renderStreamInlineState();
+  renderContextStrip();
+  renderFlowProgress();
+}
+
+function recordActivity(kind, title, detail, tone = "neutral") {
+  state.activityFeed.unshift({
+    kind,
+    title,
+    detail,
+    tone,
+    at: new Date(),
+  });
+  state.activityFeed = state.activityFeed.slice(0, 10);
+  renderActivityFeed();
+}
+
+function renderActivityFeed() {
+  const container = document.getElementById("activity-feed-list");
+  if (!container) return;
+
+  if (!state.activityFeed.length) {
+    container.innerHTML = `
+      <article class="activity-item activity-item--empty">
+        <div>
+          <h3>${escapeHtml(uiExperience.activity.labels.recent)}</h3>
+          <p>${escapeHtml(uiExperience.activity.empty)}</p>
+        </div>
+      </article>
+    `;
+    return;
+  }
+
+  container.innerHTML = state.activityFeed
+    .map((item) => {
+      const toneClass =
+        item.tone === "success"
+          ? "ok"
+          : item.tone === "warning"
+            ? "warn"
+            : item.tone === "danger"
+              ? "bad"
+              : "neutral";
+
+      return `
+        <article class="activity-item">
+          <div class="activity-item__top">
+            <h3>${escapeHtml(item.title)}</h3>
+            <span class="status-pill ${toneClass}">${escapeHtml(item.kind)}</span>
+          </div>
+          <p>${escapeHtml(item.detail)}</p>
+          <span class="activity-item__meta">${escapeHtml(
+            item.at.toLocaleTimeString(uiCopy.localeCode, {
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+            }),
+          )}</span>
+        </article>
+      `;
+    })
+    .join("");
+}
+
+function trimDisplayUrl(value) {
+  if (!value) return manualApiSpec.defaultBaseUrl;
+  try {
+    const parsed = new URL(value);
+    return `${parsed.protocol}//${parsed.host}`;
+  } catch {
+    return value;
+  }
+}
+
+function nowUnix() {
+  return Math.floor(Date.now() / 1000);
+}
+
+function uniqueDigits(length) {
+  const seed = `${Date.now()}${Math.floor(Math.random() * 100000)}`;
+  return seed.slice(-length).padStart(length, "0");
+}
+
+async function copyText(value) {
+  if (!navigator.clipboard?.writeText) {
+    showToast(uiLabels.common.clipboard, uiLabels.runtime.clipboardUnavailable, "warning");
+    return;
+  }
+
+  await navigator.clipboard.writeText(value);
+  showToast(uiLabels.common.clipboard, uiLabels.common.copied, "success");
+  recordActivity(
+    uiExperience.runtime.activityTypes.clipboard,
+    uiLabels.common.copied,
+    `${String(value).slice(0, 72)}${String(value).length > 72 ? "..." : ""}`,
+    "success",
+  );
+}
+
+function base64UrlEncode(value) {
+  return base64UrlEncodeBytes(new TextEncoder().encode(value));
+}
+
+function base64UrlEncodeBytes(bytes) {
+  let binary = "";
+  bytes.forEach((byte) => {
+    binary += String.fromCharCode(byte);
+  });
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+}
+
+function persistStorageKey() {
+  return `modularis.manualApiConsole.${uiCopy.localeCode}`;
+}
+
+function restorePersistedControls() {
+  try {
+    const raw = window.localStorage.getItem(persistStorageKey());
+    if (!raw) return;
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object") return;
+
+    for (const [id, value] of Object.entries(parsed)) {
+      const element = document.getElementById(id);
+      if (!element) continue;
+      if (element instanceof HTMLInputElement && element.type === "checkbox") {
+        element.checked = Boolean(value);
+      } else if (
+        element instanceof HTMLInputElement ||
+        element instanceof HTMLTextAreaElement ||
+        element instanceof HTMLSelectElement
+      ) {
+        element.value = String(value);
+      }
+    }
+  } catch {
+    // Ignore malformed local storage payloads.
+  }
+}
+
+function savePersistedControls() {
+  try {
+    const payload = {};
+    for (const id of PERSISTED_CONTROL_IDS) {
+      const element = document.getElementById(id);
+      if (!element) continue;
+      if (element instanceof HTMLInputElement && element.type === "checkbox") {
+        payload[id] = element.checked;
+      } else if (
+        element instanceof HTMLInputElement ||
+        element instanceof HTMLTextAreaElement ||
+        element instanceof HTMLSelectElement
+      ) {
+        payload[id] = element.value;
+      }
+    }
+    window.localStorage.setItem(persistStorageKey(), JSON.stringify(payload));
+  } catch {
+    // Ignore storage failures in restricted contexts.
+  }
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+    </script>
+  </body>
+</html>

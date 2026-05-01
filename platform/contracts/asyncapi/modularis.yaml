@@ -1,0 +1,314 @@
+asyncapi: 3.0.0
+info:
+  title: Modularis Async Contracts
+  version: 1.0.0
+  description: |
+    Shared message contracts for the Modularis monorepo. All services exchange
+    JSON envelopes with canonical metadata (`id`, `timestamp`, `eventType`,
+    `eventVersion`, `payload`) and publish them to RabbitMQ topic exchanges.
+defaultContentType: application/json
+servers:
+  rabbitmq:
+    host: localhost:5672
+    protocol: amqp
+    description: Local RabbitMQ broker
+channels:
+  userCreate:
+    address: identity.user.create
+    messages:
+      command:
+        $ref: "#/components/messages/UserCreateCommand"
+  paymentCreate:
+    address: payment.intent.create
+    messages:
+      command:
+        $ref: "#/components/messages/PaymentCreateCommand"
+  paymentProcessRequested:
+    address: payment.process.requested
+    messages:
+      event:
+        $ref: "#/components/messages/PaymentProcessRequested"
+  paymentCallbackConfirmed:
+    address: payment.callback.confirmed
+    messages:
+      event:
+        $ref: "#/components/messages/PaymentCallbackConfirmed"
+  paymentDeliveryRequested:
+    address: payment.delivery.requested
+    messages:
+      event:
+        $ref: "#/components/messages/PaymentDeliveryRequested"
+  paymentConfirmed:
+    address: payment.confirmed
+    messages:
+      event:
+        $ref: "#/components/messages/PaymentConfirmed"
+  paymentStatusUpdated:
+    address: payment.status-updated
+    messages:
+      event:
+        $ref: "#/components/messages/PaymentStatusUpdated"
+  userPremiumUpdated:
+    address: user.premium-updated
+    messages:
+      event:
+        $ref: "#/components/messages/UserPremiumUpdated"
+  rpcResponses:
+    address: api-gateway.responses.*
+    messages:
+      userCreateResponse:
+        $ref: "#/components/messages/UserCreateResponse"
+      paymentCreateResponse:
+        $ref: "#/components/messages/PaymentCreateResponse"
+components:
+  schemas:
+    MessageEnvelope:
+      type: object
+      required:
+        - eventVersion
+        - id
+        - timestamp
+        - eventType
+        - schemaVersion
+        - messageId
+        - correlationId
+        - occurredAt
+        - type
+        - payload
+      properties:
+        eventVersion:
+          type: string
+          example: "1.0.0"
+        id:
+          type: string
+          format: uuid
+        timestamp:
+          type: string
+          format: date-time
+        eventType:
+          type: string
+        schemaVersion:
+          type: string
+          example: "1.0.0"
+        messageId:
+          type: string
+          format: uuid
+        correlationId:
+          type: string
+          format: uuid
+        causationId:
+          type: string
+          format: uuid
+        occurredAt:
+          type: string
+          format: date-time
+        type:
+          type: string
+        source:
+          type: string
+        payload:
+          type: object
+    UserPayload:
+      type: object
+      required: [id, email, name, isPremium]
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        isPremium:
+          type: boolean
+    PaymentIntentPayload:
+      type: object
+      required: [id, paymentReference, amount, currency, paymentStatus, deliveryStatus, expiresAt, qrCode]
+      properties:
+        id:
+          type: string
+        paymentReference:
+          type: string
+        amount:
+          type: number
+        currency:
+          type: string
+        paymentStatus:
+          type: string
+        deliveryStatus:
+          type: string
+        expiresAt:
+          type: string
+          format: date-time
+        qrCode:
+          type: string
+        qrCodeImageUrl:
+          type: string
+    UserCreateCommandPayload:
+      type: object
+      required: [idempotencyKey, requestHash, email, name, cellphone, taxId]
+      properties:
+        idempotencyKey:
+          type: string
+        requestHash:
+          type: string
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        cellphone:
+          type: string
+        taxId:
+          type: string
+    PaymentCreateCommandPayload:
+      type: object
+      required: [idempotencyKey, requestHash, userId, customerName, customerEmail, customerCellphone, customerTaxId, amount, currency]
+      properties:
+        idempotencyKey:
+          type: string
+        requestHash:
+          type: string
+        userId:
+          type: string
+          format: uuid
+        customerName:
+          type: string
+        customerEmail:
+          type: string
+          format: email
+        customerCellphone:
+          type: string
+        customerTaxId:
+          type: string
+        amount:
+          type: number
+        currency:
+          type: string
+    PaymentStatusPayload:
+      type: object
+      required: [paymentId, paymentReference, userId, paymentStatus, deliveryStatus, expiresAt]
+      properties:
+        paymentId:
+          type: string
+        paymentReference:
+          type: string
+        userId:
+          type: string
+          format: uuid
+        paymentStatus:
+          type: string
+        deliveryStatus:
+          type: string
+        confirmedAt:
+          type: string
+          description: Empty when the payment has not been confirmed yet.
+        expiresAt:
+          type: string
+          format: date-time
+    RpcSuccessEnvelopePayload:
+      type: object
+      required: [success, data]
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        data:
+          type: object
+    RpcErrorEnvelopePayload:
+      type: object
+      required: [success, error]
+      properties:
+        success:
+          type: boolean
+          enum: [false]
+        error:
+          type: object
+          required: [status, title, detail]
+          properties:
+            status:
+              type: integer
+            title:
+              type: string
+            detail:
+              type: string
+            code:
+              type: string
+  messages:
+    UserCreateCommand:
+      payload:
+        allOf:
+          - $ref: "#/components/schemas/MessageEnvelope"
+          - type: object
+            properties:
+              payload:
+                $ref: "#/components/schemas/UserCreateCommandPayload"
+    PaymentCreateCommand:
+      payload:
+        allOf:
+          - $ref: "#/components/schemas/MessageEnvelope"
+          - type: object
+            properties:
+              payload:
+                $ref: "#/components/schemas/PaymentCreateCommandPayload"
+    PaymentProcessRequested:
+      payload:
+        $ref: "#/components/schemas/MessageEnvelope"
+    PaymentCallbackConfirmed:
+      payload:
+        $ref: "#/components/schemas/MessageEnvelope"
+    PaymentDeliveryRequested:
+      payload:
+        $ref: "#/components/schemas/MessageEnvelope"
+    PaymentConfirmed:
+      payload:
+        allOf:
+          - $ref: "#/components/schemas/MessageEnvelope"
+          - type: object
+            properties:
+              payload:
+                $ref: "#/components/schemas/PaymentStatusPayload"
+    PaymentStatusUpdated:
+      payload:
+        allOf:
+          - $ref: "#/components/schemas/MessageEnvelope"
+          - type: object
+            properties:
+              payload:
+                $ref: "#/components/schemas/PaymentStatusPayload"
+    UserPremiumUpdated:
+      payload:
+        allOf:
+          - $ref: "#/components/schemas/MessageEnvelope"
+          - type: object
+            properties:
+              payload:
+                type: object
+                required: [id, isPremium]
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  isPremium:
+                    type: boolean
+    UserCreateResponse:
+      payload:
+        allOf:
+          - $ref: "#/components/schemas/MessageEnvelope"
+          - type: object
+            properties:
+              payload:
+                oneOf:
+                  - $ref: "#/components/schemas/RpcSuccessEnvelopePayload"
+                  - $ref: "#/components/schemas/RpcErrorEnvelopePayload"
+    PaymentCreateResponse:
+      payload:
+        allOf:
+          - $ref: "#/components/schemas/MessageEnvelope"
+          - type: object
+            properties:
+              payload:
+                oneOf:
+                  - $ref: "#/components/schemas/RpcSuccessEnvelopePayload"
+                  - $ref: "#/components/schemas/RpcErrorEnvelopePayload"

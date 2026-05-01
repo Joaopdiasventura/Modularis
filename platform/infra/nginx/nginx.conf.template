@@ -1,0 +1,235 @@
+server {
+  listen ${NGINX_PORT};
+  root /usr/share/nginx/html;
+  resolver 127.0.0.11 valid=10s;
+  resolver_timeout 5s;
+  server_tokens off;
+  client_max_body_size 1m;
+
+  add_header X-Content-Type-Options "nosniff" always;
+  add_header X-Frame-Options "DENY" always;
+  add_header Referrer-Policy "no-referrer" always;
+
+  set $dev_cors_origin "";
+  if ($http_origin = "null") {
+    set $dev_cors_origin "null";
+  }
+  if ($http_origin ~* '^https?://(localhost|127\.0\.0\.1|\[::1\]|::1)(:\d+)?$') {
+    set $dev_cors_origin $http_origin;
+  }
+
+  location = /api/docs {
+    try_files /manual-api-tests.html =404;
+  }
+
+  location = /api/docs/ {
+    try_files /manual-api-tests.html =404;
+  }
+
+  location = /api/docs/pt-br {
+    try_files /manual-api-tests.pt-BR.html =404;
+  }
+
+  location = /api/docs/pt-br/ {
+    try_files /manual-api-tests.pt-BR.html =404;
+  }
+
+  location = /manual-api-tests.html {
+    try_files /manual-api-tests.html =404;
+  }
+
+  location = /manual-api-tests.pt-BR.html {
+    try_files /manual-api-tests.pt-BR.html =404;
+  }
+
+  location /api/ {
+    set $api_upstream ${API_GATEWAY_HOST}:${API_GATEWAY_PORT};
+    rewrite ^/api/?(.*)$ /$1 break;
+    proxy_pass http://$api_upstream;
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header Connection "";
+    proxy_read_timeout 1h;
+    proxy_send_timeout 1h;
+    proxy_buffering off;
+  }
+
+  location = /webhooks/payments {
+    if ($request_method = OPTIONS) {
+      add_header Access-Control-Allow-Origin $dev_cors_origin always;
+      add_header Access-Control-Allow-Credentials "true" always;
+      add_header Access-Control-Allow-Methods "POST,OPTIONS" always;
+      add_header Access-Control-Allow-Headers "Content-Type,Authorization,X-Payment-Signature,X-Correlation-Id,X-Request-Id" always;
+      add_header Access-Control-Expose-Headers "X-Request-Id" always;
+      add_header Vary "Origin" always;
+      return 204;
+    }
+
+    set $webhook_upstream ${WEBHOOK_HOST}:${WEBHOOK_PORT};
+    add_header Access-Control-Allow-Origin $dev_cors_origin always;
+    add_header Access-Control-Allow-Credentials "true" always;
+    add_header Access-Control-Expose-Headers "X-Request-Id" always;
+    add_header Vary "Origin" always;
+    proxy_pass http://$webhook_upstream/webhooks/payments;
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header Connection "";
+    proxy_buffering off;
+  }
+
+  location /webhooks/health/ {
+    if ($request_method = OPTIONS) {
+      add_header Access-Control-Allow-Origin $dev_cors_origin always;
+      add_header Access-Control-Allow-Credentials "true" always;
+      add_header Access-Control-Allow-Methods "GET,OPTIONS" always;
+      add_header Access-Control-Allow-Headers "Content-Type,Authorization,X-Request-Id" always;
+      add_header Vary "Origin" always;
+      return 204;
+    }
+
+    set $webhook_upstream ${WEBHOOK_HOST}:${WEBHOOK_PORT};
+    add_header Access-Control-Allow-Origin $dev_cors_origin always;
+    add_header Access-Control-Allow-Credentials "true" always;
+    add_header Vary "Origin" always;
+    rewrite ^/webhooks/health/?(.*)$ /health/$1 break;
+    proxy_pass http://$webhook_upstream;
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header Connection "";
+    proxy_buffering off;
+  }
+
+  location /internal/payment/ {
+    if ($request_method = OPTIONS) {
+      add_header Access-Control-Allow-Origin $dev_cors_origin always;
+      add_header Access-Control-Allow-Credentials "true" always;
+      add_header Access-Control-Allow-Methods "GET,OPTIONS" always;
+      add_header Access-Control-Allow-Headers "Content-Type,Authorization,X-Request-Id" always;
+      add_header Vary "Origin" always;
+      return 204;
+    }
+
+    set $payment_upstream ${PAYMENT_SERVICE_HOST}:${PAYMENT_SERVICE_PORT};
+    add_header Access-Control-Allow-Origin $dev_cors_origin always;
+    add_header Access-Control-Allow-Credentials "true" always;
+    add_header Vary "Origin" always;
+    rewrite ^/internal/payment/?(.*)$ /$1 break;
+    proxy_pass http://$payment_upstream;
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header Connection "";
+    proxy_buffering off;
+  }
+
+  location /internal/onboarding/ {
+    if ($request_method = OPTIONS) {
+      add_header Access-Control-Allow-Origin $dev_cors_origin always;
+      add_header Access-Control-Allow-Credentials "true" always;
+      add_header Access-Control-Allow-Methods "GET,OPTIONS" always;
+      add_header Access-Control-Allow-Headers "Content-Type,Authorization,X-Request-Id" always;
+      add_header Vary "Origin" always;
+      return 204;
+    }
+
+    set $onboarding_upstream ${ONBOARDING_SERVICE_HOST}:${ONBOARDING_SERVICE_PORT};
+    add_header Access-Control-Allow-Origin $dev_cors_origin always;
+    add_header Access-Control-Allow-Credentials "true" always;
+    add_header Vary "Origin" always;
+    rewrite ^/internal/onboarding/?(.*)$ /$1 break;
+    proxy_pass http://$onboarding_upstream;
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header Connection "";
+    proxy_buffering off;
+  }
+
+  location /internal/identity/ {
+    if ($request_method = OPTIONS) {
+      add_header Access-Control-Allow-Origin $dev_cors_origin always;
+      add_header Access-Control-Allow-Credentials "true" always;
+      add_header Access-Control-Allow-Methods "GET,OPTIONS" always;
+      add_header Access-Control-Allow-Headers "Content-Type,Authorization,X-Request-Id" always;
+      add_header Vary "Origin" always;
+      return 204;
+    }
+
+    set $identity_upstream ${IDENTITY_SERVICE_HOST}:${IDENTITY_SERVICE_PORT};
+    add_header Access-Control-Allow-Origin $dev_cors_origin always;
+    add_header Access-Control-Allow-Credentials "true" always;
+    add_header Vary "Origin" always;
+    rewrite ^/internal/identity/?(.*)$ /$1 break;
+    proxy_pass http://$identity_upstream;
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header Connection "";
+    proxy_buffering off;
+  }
+
+  location /internal/membership/ {
+    if ($request_method = OPTIONS) {
+      add_header Access-Control-Allow-Origin $dev_cors_origin always;
+      add_header Access-Control-Allow-Credentials "true" always;
+      add_header Access-Control-Allow-Methods "GET,OPTIONS" always;
+      add_header Access-Control-Allow-Headers "Content-Type,Authorization,X-Request-Id" always;
+      add_header Vary "Origin" always;
+      return 204;
+    }
+
+    set $membership_upstream ${MEMBERSHIP_SERVICE_HOST}:${MEMBERSHIP_SERVICE_PORT};
+    add_header Access-Control-Allow-Origin $dev_cors_origin always;
+    add_header Access-Control-Allow-Credentials "true" always;
+    add_header Vary "Origin" always;
+    rewrite ^/internal/membership/?(.*)$ /$1 break;
+    proxy_pass http://$membership_upstream;
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header Connection "";
+    proxy_buffering off;
+  }
+
+  location /internal/user/ {
+    if ($request_method = OPTIONS) {
+      add_header Access-Control-Allow-Origin $dev_cors_origin always;
+      add_header Access-Control-Allow-Credentials "true" always;
+      add_header Access-Control-Allow-Methods "GET,OPTIONS" always;
+      add_header Access-Control-Allow-Headers "Content-Type,Authorization,X-Request-Id" always;
+      add_header Vary "Origin" always;
+      return 204;
+    }
+
+    set $identity_upstream ${IDENTITY_SERVICE_HOST}:${IDENTITY_SERVICE_PORT};
+    add_header Access-Control-Allow-Origin $dev_cors_origin always;
+    add_header Access-Control-Allow-Credentials "true" always;
+    add_header Vary "Origin" always;
+    rewrite ^/internal/user/?(.*)$ /$1 break;
+    proxy_pass http://$identity_upstream;
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header Connection "";
+    proxy_buffering off;
+  }
+}

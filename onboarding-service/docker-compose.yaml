@@ -1,0 +1,80 @@
+services:
+  rabbitmq:
+    image: rabbitmq:4-management
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: user
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "rabbitmq-diagnostics -q ping && rabbitmq-diagnostics -q check_port_connectivity",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: modularis_onboarding
+      POSTGRES_USER: modularis
+      POSTGRES_PASSWORD: modularis
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U modularis -d modularis_onboarding"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+
+  identity-mock:
+    build: .
+    command: ["node", "doubles/identity-responder.mjs"]
+    environment:
+      MODULARIS_RABBITMQ_URL: amqp://user:user@rabbitmq:5672/
+      MODULARIS_COMMAND_EXCHANGE: modularis.commands
+      MODULARIS_RESPONSE_EXCHANGE: modularis.responses
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  payment-mock:
+    build: .
+    command: ["node", "doubles/payment-responder.mjs"]
+    environment:
+      MODULARIS_RABBITMQ_URL: amqp://user:user@rabbitmq:5672/
+      MODULARIS_COMMAND_EXCHANGE: modularis.commands
+      MODULARIS_RESPONSE_EXCHANGE: modularis.responses
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  onboarding-service:
+    build: .
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      MODULARIS_SERVICE_NAME: onboarding-service
+      MODULARIS_RABBITMQ_URL: amqp://user:user@rabbitmq:5672/
+      MODULARIS_COMMAND_EXCHANGE: modularis.commands
+      MODULARIS_EVENT_EXCHANGE: modularis.events
+      MODULARIS_RESPONSE_EXCHANGE: modularis.responses
+      MODULARIS_RPC_TIMEOUT_MS: 5000
+      MODULARIS_POSTGRES_URL: postgresql://modularis:modularis@postgres:5432/modularis_onboarding
+      MODULARIS_POSTGRES_CONNECTION_TIMEOUT_MS: 5000
+      MODULARIS_ONBOARDING_COMMAND_QUEUE: onboarding-service.command.account-create
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      identity-mock:
+        condition: service_started
+      payment-mock:
+        condition: service_started
+    ports:
+      - "3001:3000"

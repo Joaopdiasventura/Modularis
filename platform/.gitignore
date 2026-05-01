@@ -1,0 +1,41 @@
+*.log
+*.tmp
+*.swp
+.DS_Store
+Thumbs.db
+*.pid
+*.trace
+*.cpuprofile
+*.heapsnapshot
+
+# Node
+node_modules/
+dist/
+coverage/
+.nyc_output/
+.eslintcache
+
+# Java
+.gradle/
+build/
+out/
+
+# Go
+bin/
+coverage.out
+
+# IDE
+.idea/
+.vscode/
+
+# Runtime
+.env
+.env.local
+
+# Local-only demo exports and snapshots
+docs/demos/manual-api/*.local.html
+docs/demos/manual-api/*.debug.html
+docs/demos/manual-api/*.snapshot.html
+docs/demos/manual-api/tmp/
+playwright-report/
+test-results/

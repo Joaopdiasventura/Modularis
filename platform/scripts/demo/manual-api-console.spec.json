@@ -1,0 +1,241 @@
+{
+  "version": "3.0.0",
+  "defaultBaseUrl": "http://localhost",
+  "outputFiles": {
+    "en": "manual-api-tests.html",
+    "ptBR": "manual-api-tests.pt-BR.html"
+  },
+  "publicDocsRoutes": {
+    "en": "/api/docs",
+    "ptBR": "/api/docs/pt-br"
+  },
+  "noParameterizedPaths": true,
+  "noRequiredQueryParams": true,
+  "noPublicCrud": true,
+  "surfaceEndpoints": [
+    {
+      "id": "accounts-create",
+      "method": "POST",
+      "path": "/api/accounts",
+      "visibility": "public"
+    },
+    {
+      "id": "events-stream",
+      "method": "GET",
+      "path": "/api/events",
+      "visibility": "public-protected"
+    },
+    {
+      "id": "gateway-live",
+      "method": "GET",
+      "path": "/api/health/live",
+      "visibility": "public"
+    },
+    {
+      "id": "gateway-ready",
+      "method": "GET",
+      "path": "/api/health/ready",
+      "visibility": "public"
+    },
+    {
+      "id": "webhook-ingress",
+      "method": "POST",
+      "path": "/webhooks/payments",
+      "visibility": "public"
+    },
+    {
+      "id": "webhook-live",
+      "method": "GET",
+      "path": "/webhooks/health/live",
+      "visibility": "public"
+    },
+    {
+      "id": "webhook-ready",
+      "method": "GET",
+      "path": "/webhooks/health/ready",
+      "visibility": "public"
+    },
+    {
+      "id": "payment-live",
+      "method": "GET",
+      "path": "/internal/payment/health/live",
+      "visibility": "internal-proxy"
+    },
+    {
+      "id": "payment-ready",
+      "method": "GET",
+      "path": "/internal/payment/health/ready",
+      "visibility": "internal-proxy"
+    },
+    {
+      "id": "onboarding-live",
+      "method": "GET",
+      "path": "/internal/onboarding/health/live",
+      "visibility": "internal-proxy"
+    },
+    {
+      "id": "onboarding-ready",
+      "method": "GET",
+      "path": "/internal/onboarding/health/ready",
+      "visibility": "internal-proxy"
+    },
+    {
+      "id": "identity-live",
+      "method": "GET",
+      "path": "/internal/identity/actuator/health/liveness",
+      "visibility": "internal-proxy"
+    },
+    {
+      "id": "identity-ready",
+      "method": "GET",
+      "path": "/internal/identity/actuator/health/readiness",
+      "visibility": "internal-proxy"
+    },
+    {
+      "id": "membership-live",
+      "method": "GET",
+      "path": "/internal/membership/actuator/health/liveness",
+      "visibility": "internal-proxy"
+    },
+    {
+      "id": "membership-ready",
+      "method": "GET",
+      "path": "/internal/membership/actuator/health/readiness",
+      "visibility": "internal-proxy"
+    }
+  ],
+  "healthEndpoints": [
+    {
+      "id": "gateway-live",
+      "method": "GET",
+      "path": "/api/health/live"
+    },
+    {
+      "id": "gateway-ready",
+      "method": "GET",
+      "path": "/api/health/ready"
+    },
+    {
+      "id": "webhook-live",
+      "method": "GET",
+      "path": "/webhooks/health/live"
+    },
+    {
+      "id": "webhook-ready",
+      "method": "GET",
+      "path": "/webhooks/health/ready"
+    },
+    {
+      "id": "payment-live",
+      "method": "GET",
+      "path": "/internal/payment/health/live"
+    },
+    {
+      "id": "payment-ready",
+      "method": "GET",
+      "path": "/internal/payment/health/ready"
+    },
+    {
+      "id": "onboarding-live",
+      "method": "GET",
+      "path": "/internal/onboarding/health/live"
+    },
+    {
+      "id": "onboarding-ready",
+      "method": "GET",
+      "path": "/internal/onboarding/health/ready"
+    },
+    {
+      "id": "identity-live",
+      "method": "GET",
+      "path": "/internal/identity/actuator/health/liveness"
+    },
+    {
+      "id": "identity-ready",
+      "method": "GET",
+      "path": "/internal/identity/actuator/health/readiness"
+    },
+    {
+      "id": "membership-live",
+      "method": "GET",
+      "path": "/internal/membership/actuator/health/liveness"
+    },
+    {
+      "id": "membership-ready",
+      "method": "GET",
+      "path": "/internal/membership/actuator/health/readiness"
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "account-create",
+      "method": "POST",
+      "path": "/api/accounts"
+    },
+    {
+      "id": "account-replay",
+      "method": "POST",
+      "path": "/api/accounts"
+    },
+    {
+      "id": "account-conflict-prime",
+      "method": "POST",
+      "path": "/api/accounts"
+    },
+    {
+      "id": "account-conflict-replay",
+      "method": "POST",
+      "path": "/api/accounts"
+    },
+    {
+      "id": "account-missing-key",
+      "method": "POST",
+      "path": "/api/accounts"
+    },
+    {
+      "id": "account-invalid-payload",
+      "method": "POST",
+      "path": "/api/accounts"
+    },
+    {
+      "id": "account-unsupported-currency",
+      "method": "POST",
+      "path": "/api/accounts"
+    },
+    {
+      "id": "events-probe",
+      "method": "GET",
+      "path": "/api/events"
+    },
+    {
+      "id": "events-connect",
+      "method": "GET",
+      "path": "/api/events"
+    },
+    {
+      "id": "webhook-confirmed",
+      "method": "POST",
+      "path": "/webhooks/payments"
+    },
+    {
+      "id": "webhook-unsupported",
+      "method": "POST",
+      "path": "/webhooks/payments"
+    },
+    {
+      "id": "webhook-invalid-signature",
+      "method": "POST",
+      "path": "/webhooks/payments"
+    },
+    {
+      "id": "webhook-expired-signature",
+      "method": "POST",
+      "path": "/webhooks/payments"
+    },
+    {
+      "id": "custom-request",
+      "method": "ANY",
+      "path": "custom"
+    }
+  ]
+}
